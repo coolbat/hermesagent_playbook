@@ -1,11 +1,19 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import Callout from "@/components/Callout.astro";
+import { getEntryBySlug } from "@/lib/content";
+
+const entry = await getEntryBySlug("pages", "en", "editorial");
+if (!entry) {
+  throw new Error("Missing pages/editorial content");
+}
+
+const { Content } = await entry.render();
 ---
 
-<BaseLayout active="none" description="Example editorial policy for AnyPlaybook." locale="en" path="/editorial/" title="Editorial Policy | AnyPlaybook">
+<BaseLayout active="none" description="Editorial policy for Hermes Agent Playbook." locale="en" path="/editorial/" title="Editorial Policy | Hermes Agent Playbook">
   <article class="section card page-prose">
     <h1>Editorial Policy</h1>
-    <p>AnyPlaybook assumes tutorial sites should optimize for clarity, verification, and durable information architecture.</p>
-    <p>Update content when setup changes materially, a guide becomes misleading, or a stronger canonical workflow appears.</p>
+    <Content components={{ Callout }} />
   </article>
 </BaseLayout>

@@ -1,0 +1,74 @@
+---
+title: "Connect a Chat Channel"
+summary: "Move from a healthy CLI session to a callable agent loop in one messaging surface."
+readingTime: "9 min"
+---
+
+The CLI proves Hermes works. A channel proves Hermes can be called in the way real users will actually use it.
+
+## Start with one platform
+
+The safest first choice is a single platform you can test quickly:
+
+- Telegram
+- Discord
+- another officially supported messaging surface
+
+Do not connect several at once. If responses fail, you want one clear event path to debug.
+
+## The rule: text before voice, one loop before many loops
+
+The official docs repeatedly encourage a simple order of operations:
+
+1. confirm Hermes works in text
+2. connect one platform
+3. verify one request-response loop
+4. only then add voice, automations, or more channels
+
+That order keeps failures local.
+
+## What a good channel test looks like
+
+A good first test is deliberately boring:
+
+- one known account
+- one clean text message
+- one expected reply
+
+You are not testing intelligence yet. You are testing whether the message reaches Hermes, Hermes processes it, and a response comes back cleanly.
+
+## If you are using gateway-backed platforms
+
+Once your platform is configured, start the gateway:
+
+```bash
+hermes gateway
+```
+
+For gateway-based setups, this process matters as much as the provider does. A healthy CLI loop with an unhealthy gateway is still a broken user experience.
+
+## If the bot stays silent
+
+Check these in order:
+
+1. Does the platform configuration look correct?
+2. Is the gateway running?
+3. Does Hermes still respond in the CLI?
+4. Are logs showing incoming events?
+
+If the answer to step 3 is no, go back to setup. If step 3 is yes and step 4 is no, the problem is usually routing, auth, or webhook wiring.
+
+## Keep the first channel narrow
+
+Do not mix these during first validation:
+
+- attachments
+- rich formatting
+- voice messages
+- tool-heavy prompts
+
+Simple text is easier to observe and easier to recover.
+
+## Next move
+
+With one healthy channel loop in place, continue to [Run a Starter Workflow](/quick-start/starter-workflow).

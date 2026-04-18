@@ -1,0 +1,25 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  active="none"
+  description="The page you requested could not be found."
+  locale="en"
+  path="/404/"
+  robots="noindex,nofollow"
+  title="Page Not Found | Hermes Agent Playbook"
+>
+  <section class="section search-page">
+    <div class="search-shell card">
+      <p class="eyebrow">404</p>
+      <h1>That page does not exist.</h1>
+      <p class="sub">Try Quick Start, Learn, Templates, Skills, or Troubleshoot instead of continuing into a dead URL.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="/#quick-start">Go to Quick Start</a>
+        <a class="btn secondary" href="/learn/">Browse Learn</a>
+        <a class="btn secondary" href="/search/">Search the playbook</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

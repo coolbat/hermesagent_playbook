@@ -1,4 +1,5 @@
 import { defaultLocale, type Locale } from "@/config/site";
+import type { LocalizedList, LocalizedText } from "@/content/types";
 
 export function isLocale(value: string): value is Locale {
   return value === "en" || value === "zh";
@@ -20,4 +21,12 @@ export function switchLocale(pathname: string, locale: Locale) {
 
 export function htmlLang(locale: Locale) {
   return locale === "zh" ? "zh-CN" : "en";
+}
+
+export function pickLocalizedText(value: LocalizedText, locale: Locale) {
+  return value[locale];
+}
+
+export function pickLocalizedList(value: LocalizedList, locale: Locale) {
+  return value[locale];
 }

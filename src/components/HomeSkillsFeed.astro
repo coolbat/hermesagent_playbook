@@ -1,0 +1,51 @@
+---
+import type { Locale } from "@/config/site";
+import { homeSkillScenarios, officialSkillsHubUrl } from "@/content/skills";
+import { pickLocalizedList, pickLocalizedText } from "@/lib/i18n";
+
+const { locale } = Astro.props as { locale: Locale };
+
+const scenarios = homeSkillScenarios.map((scenario) => ({
+  label: pickLocalizedText(scenario.label, locale),
+  skills: pickLocalizedList(scenario.skills, locale),
+  summary: pickLocalizedText(scenario.summary, locale),
+}));
+
+const buttonLabel = locale === "zh" ? "前往 Hermes Skills" : "Open Hermes Skills";
+const initialVisibleCount = 3;
+const moreLabel = locale === "zh" ? "加载更多场景" : "More scenarios";
+---
+
+<div class="home-feed home-skills-feed" data-home-feed data-initial-visible-count={String(initialVisibleCount)}>
+  <div class="grid cols-3 home-feed-grid">
+    {
+      scenarios.map((scenario, index) => (
+        <article class:list={["card", "home-skill-card", "home-feed-item", index >= initialVisibleCount && "is-hidden"]} data-home-feed-item>
+          <div class="home-skill-card-head">
+            <p class="eyebrow">Skills scenario</p>
+            <h3>{scenario.label}</h3>
+          </div>
+          <p>{scenario.summary}</p>
+          <ul class="home-skill-list">
+            {scenario.skills.map((skill) => <li>{skill}</li>)}
+          </ul>
+          <div class="cta-row">
+            <a class="btn secondary" href={officialSkillsHubUrl} rel="noreferrer" target="_blank">
+              {buttonLabel}
+            </a>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  {
+    scenarios.length > initialVisibleCount && (
+      <div class="home-feed-footer">
+        <button class="btn secondary home-feed-more" data-home-feed-more type="button">
+          {moreLabel}
+        </button>
+      </div>
+    )
+  }
+</div>

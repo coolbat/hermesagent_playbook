@@ -4,16 +4,16 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 const locale = "en";
 ---
 
-<BaseLayout active="none" description="Search across tutorials, templates, and troubleshooting guides." locale={locale} path="/search/" title="Search | AnyPlaybook">
+<BaseLayout active="none" description="Search across Hermes Agent quick start guides, templates, and troubleshooting pages." locale={locale} path="/search/" title="Search | Hermes Agent Playbook">
   <Fragment slot="head">
     <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
   </Fragment>
 
-  <section class="section search-page">
+  <section class="section search-page search-page--en">
     <div class="search-shell card">
       <p class="eyebrow">SEARCH</p>
       <h1>Find the next useful answer fast.</h1>
-      <p class="sub">Search across Quick Start, Learn, Templates, and Troubleshoot without leaving the static site.</p>
+      <p class="sub">Search across Quick Start, Learn, Templates, Troubleshoot, and the trust pages without leaving the playbook.</p>
       <div class="search-root" id="search-root">
         <p class="search-loading">Loading search…</p>
       </div>
@@ -21,13 +21,41 @@ const locale = "en";
   </section>
 
   <script is:inline>
+    const loadPagefindUi = async () => {
+      if (window.PagefindUI) return window.PagefindUI;
+
+      await new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-pagefind-ui]');
+        if (existing instanceof HTMLScriptElement) {
+          existing.addEventListener("load", () => resolve(window.PagefindUI), { once: true });
+          existing.addEventListener("error", reject, { once: true });
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "/pagefind/pagefind-ui.js";
+        script.async = true;
+        script.dataset.pagefindUi = "true";
+        script.addEventListener("load", () => resolve(window.PagefindUI), { once: true });
+        script.addEventListener("error", reject, { once: true });
+        document.head.appendChild(script);
+      });
+
+      return window.PagefindUI;
+    };
+
     const initSearch = async () => {
       const root = document.querySelector("#search-root");
       if (!(root instanceof HTMLElement) || root.dataset.ready === "true") return;
 
       try {
-        const PagefindUI = await import("/pagefind/pagefind-ui.js");
-        new PagefindUI.default({
+        root.innerHTML = "";
+        const PagefindUI = await loadPagefindUi();
+        if (!PagefindUI) {
+          throw new Error("Pagefind UI script loaded but window.PagefindUI is missing");
+        }
+
+        new PagefindUI({
           element: "#search-root",
           bundlePath: "/pagefind/",
           showImages: false,
@@ -43,7 +71,7 @@ const locale = "en";
         });
         root.dataset.ready = "true";
       } catch (error) {
-        root.innerHTML = '<p class="search-loading">Search failed to load. Run <code>npm run build</code> and refresh the page.</p>';
+        root.innerHTML = '<p class="search-loading">Search failed to load. Refresh once, then check that <code>/pagefind/pagefind-ui.js</code> is reachable.</p>';
         console.error("Failed to initialize search", error);
       }
     };

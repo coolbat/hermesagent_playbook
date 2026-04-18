@@ -3,123 +3,137 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHero from "@/components/PageHero.astro";
 import SectionHeading from "@/components/SectionHeading.astro";
 import QuickStartCard from "@/components/QuickStartCard.astro";
-import ArticleCard from "@/components/ArticleCard.astro";
-import { adsConfig, isAdSlotEnabled } from "@/config/ads";
-import { homeConfig } from "@/config/home";
-import { getLocalizedCollection, getRouteSlug } from "@/lib/content";
+import HomeLearnFeed from "@/components/HomeLearnFeed.astro";
+import HomeSkillsFeed from "@/components/HomeSkillsFeed.astro";
+import HomeTemplatesFeed from "@/components/HomeTemplatesFeed.astro";
+import HomeTroubleshootFeed from "@/components/HomeTroubleshootFeed.astro";
+import {
+  homeHero,
+  quickStartEntries,
+  quickStartIntro,
+  learnPreview,
+  templatePreview,
+  troubleshootPreview,
+} from "@/content/site";
 import { localizePath } from "@/lib/i18n";
 
 const locale = "zh";
-const quickStart = await getLocalizedCollection("quickStart", locale);
-const learnEntries = await getLocalizedCollection("learn", locale);
-const templateEntries = await getLocalizedCollection("templates", locale);
-const troubleshootEntries = await getLocalizedCollection("troubleshoot", locale);
-const learn = learnEntries.slice(0, 3);
-const templates = templateEntries.slice(0, 3);
-const troubleshoot = troubleshootEntries.slice(0, 3);
-const homeAd = adsConfig.slots.home_between_sections.content.zh;
 ---
 
 <BaseLayout
   active="home"
-  description={homeConfig.hero.summary.zh}
+  description={homeHero.summary.zh}
   locale={locale}
   path="/"
-  title="AnyPlaybook | 教程站模板"
+  title="Hermes Agent 新手 Quick Start"
 >
   <PageHero
-    className="hero"
+    className="home-hero"
     ctas={[
-      { href: "#quick-start", label: "进入 5 步 Quick Start", variant: "primary" },
-      { href: localizePath("/learn/", locale), label: "浏览 Learn", variant: "secondary" },
+      { href: "#quick-start", label: homeHero.ctas[0].label.zh, variant: homeHero.ctas[0].variant },
+      { href: localizePath(homeHero.ctas[1].href, locale), label: homeHero.ctas[1].label.zh, variant: homeHero.ctas[1].variant },
+      { href: localizePath(homeHero.ctas[2].href, locale), label: homeHero.ctas[2].label.zh, variant: homeHero.ctas[2].variant },
     ]}
-    highlights={[
-      "内置中英双语路由",
-      "深浅色与语言切换就绪",
-      "内容集合结构已整理",
-    ]}
-    kicker={homeConfig.hero.kicker}
-    summary={homeConfig.hero.summary.zh}
-    title={homeConfig.hero.title.zh}
-    aside={homeConfig.hero.aside.zh}
-  />
-
-  <section class="section" id="quick-start">
-    <SectionHeading title={homeConfig.quickStartIntro.title.zh} summary={homeConfig.quickStartIntro.summary.zh} />
-    <div class="grid cols-2">
-      {quickStart.map((entry) => (
-        <QuickStartCard entry={entry.data} href={localizePath(`/quick-start/${getRouteSlug(entry)}/`, locale)} />
-      ))}
-    </div>
-  </section>
-
-  <section class="section">
-    <SectionHeading
-      actionHref={localizePath("/learn/", locale)}
-      actionLabel={`进入 Learn 资源中心（${learnEntries.length} 篇）`}
-      summary={homeConfig.learnIntro.summary.zh}
-      title={homeConfig.learnIntro.title.zh}
-    />
-    <div class="grid cols-3">
-      {learn.map((entry) => (
-        <ArticleCard
-          eyebrow={entry.data.category}
-          href={localizePath(`/learn/${getRouteSlug(entry)}/`, locale)}
-          summary={entry.data.summary}
-          title={entry.data.title}
-        />
-      ))}
-    </div>
-  </section>
-
-  {isAdSlotEnabled("home_between_sections") && (
-    <section class="ad-preview-banner section">
-      <div class="ad-preview-copy">
-        <p class="eyebrow">{homeAd.label}</p>
-        <h2>{homeAd.title}</h2>
-        <p>{homeAd.summary}</p>
+    kicker={homeHero.kicker}
+    summary={homeHero.summary.zh}
+    title={homeHero.title.zh}
+  >
+    <div class="home-signal-strip">
+      <div class="home-signal-card home-signal-card-primary">
+        <span class="hero-rail-label">主路径</span>
+        <strong>5 个串联步骤指南</strong>
+        <p>从认知建立到第一个有用工作流，沿着一条路径往下走。</p>
       </div>
-      <a class="btn secondary ad-preview-action" href={localizePath(homeAd.href, locale)}>
-        {homeAd.ctaLabel}
-      </a>
-    </section>
-  )}
+      <div class="home-signal-card">
+        <span class="hero-rail-label">结果</span>
+        <strong>渠道 + 结果 + 恢复路径</strong>
+        <p>先跑通一个真实闭环，并在失败时知道下一步去哪里。</p>
+      </div>
+    </div>
+    <div slot="aside">
+      <div class="hero-briefing">
+        <div class="hero-briefing-head">
+          <p class="eyebrow">First-run control panel</p>
+          <h2>{homeHero.sideTitle.zh}</h2>
+        </div>
+        <div class="hero-briefing-stack">
+          {
+            homeHero.sideItems.map((item, index) => (
+              <div class="hero-briefing-row">
+                <span>{`0${index + 1}`}</span>
+                <p>{item.zh}</p>
+              </div>
+            ))
+          }
+        </div>
+        <div class="hero-briefing-note">
+          <span>目标时长</span>
+          <strong>30 分钟</strong>
+          <p>足够建立正确认知，并验证一个真实有用的工作流。</p>
+        </div>
+      </div>
+    </div>
+  </PageHero>
 
-  <section class="section">
-    <SectionHeading
-      actionHref={localizePath("/templates/", locale)}
-      actionLabel={`浏览模板（${templateEntries.length} 个）`}
-      summary={homeConfig.templatesIntro.summary.zh}
-      title={homeConfig.templatesIntro.title.zh}
-    />
-    <div class="grid cols-3">
-      {templates.map((entry) => (
-        <ArticleCard
-          eyebrow={`${entry.data.difficulty} · ${entry.data.time}`}
-          href={localizePath(`/templates/${getRouteSlug(entry)}/`, locale)}
-          summary={entry.data.summary}
-          title={entry.data.title}
-        />
-      ))}
+  <section class="section section-quickstart" id="quick-start">
+    <SectionHeading title={quickStartIntro.title.zh} summary={quickStartIntro.summary.zh} />
+    <div class="quick-start-overview callout">
+      <div class="quick-start-overview-item">
+        <span class="hero-rail-label">形式</span>
+        <strong>5 个可点击步骤指南</strong>
+        <p>每张卡片都会进入独立教程页，而不是把所有细节都塞在首页里。</p>
+      </div>
+      <div class="quick-start-overview-item">
+        <span class="hero-rail-label">目标</span>
+        <strong>从 setup 到一条有用闭环</strong>
+        <p>沿着这条路径建立正确认知、验证环境、接通渠道，并跑出第一个真实结果。</p>
+      </div>
+      <div class="quick-start-overview-item">
+        <span class="hero-rail-label">如果失败</span>
+        <strong>快速切回 Troubleshoot</strong>
+        <p>最后一步就是为了让首次失败变成可恢复路径，而不是直接卡死在首页。</p>
+      </div>
+    </div>
+    <div class="grid cols-2 quick-start-grid">
+      {
+        quickStartEntries.map((entry) => (
+          <QuickStartCard
+            ctaLabel={entry.cta.label.zh}
+            entry={{
+              step: entry.step,
+              title: entry.title.zh,
+              summary: entry.summary.zh,
+              bullets: entry.bullets.zh,
+            }}
+            href={localizePath(`/quick-start/${entry.slug}`, locale)}
+          />
+        ))
+      }
     </div>
   </section>
 
-  <section class="section">
+  <section class="section section-preview section-learn-preview home-module home-module-learn">
+    <SectionHeading actionHref={localizePath(learnPreview.cta.href, locale)} actionLabel={learnPreview.cta.label.zh} title={learnPreview.title.zh} summary={learnPreview.summary.zh} />
+    <HomeLearnFeed locale={locale} />
+  </section>
+
+  <section class="section section-preview section-templates-preview home-module home-module-templates">
+    <SectionHeading actionHref={localizePath("/templates", locale)} actionLabel="进入 Templates 深入看" title={templatePreview.title.zh} summary={templatePreview.summary.zh} />
+    <HomeTemplatesFeed locale={locale} />
+  </section>
+
+  <section class="section section-preview section-skills-preview home-module home-module-skills">
     <SectionHeading
-      actionHref={localizePath("/troubleshoot/", locale)}
-      actionLabel={`进入排错库（${troubleshootEntries.length} 篇）`}
-      summary={homeConfig.troubleshootIntro.summary.zh}
-      title={homeConfig.troubleshootIntro.title.zh}
+      actionHref="https://hermes-agent.nousresearch.com/docs/skills"
+      actionLabel="浏览官方 Skills"
+      title="按场景浏览 Hermes Skills"
+      summary="参考 Hermes 官方 Skills Hub 的分类方式，从你最关心的场景出发查看技能，再进入官方 Skills 页面继续筛选和安装。"
     />
-    <div class="grid cols-3">
-      {troubleshoot.map((entry) => (
-        <ArticleCard
-          eyebrow={entry.data.symptom}
-          href={localizePath(`/troubleshoot/${getRouteSlug(entry)}/`, locale)}
-          summary={entry.data.summary}
-          title={entry.data.title}
-        />
-      ))}
-    </div>
+    <HomeSkillsFeed locale={locale} />
+  </section>
+
+  <section class="section section-preview section-troubleshoot-preview home-module home-module-troubleshoot">
+    <SectionHeading actionHref={localizePath(troubleshootPreview.cta.href, locale)} actionLabel={troubleshootPreview.cta.label.zh} title={troubleshootPreview.title.zh} summary={troubleshootPreview.summary.zh} />
+    <HomeTroubleshootFeed locale={locale} />
   </section>
 </BaseLayout>

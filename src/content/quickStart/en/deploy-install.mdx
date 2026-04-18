@@ -1,0 +1,84 @@
+---
+title: "Install and Configure Hermes Agent"
+summary: "Follow the official install path first, then verify one provider and one healthy CLI session."
+readingTime: "10 min"
+---
+
+Your first install does not need to be perfect. It needs to prove three things:
+
+- Hermes is installed correctly
+- one model provider is configured
+- the CLI loop works end to end
+
+## Use the official installer
+
+The Hermes docs recommend the one-line installer on macOS, Linux, and WSL2:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+```
+
+What the installer sets up for you:
+
+- required local dependencies
+- the Hermes repo and environment
+- the global `hermes` command
+- the setup flow for your first provider
+
+If you skipped provider setup during install, run it explicitly:
+
+```bash
+hermes setup
+```
+
+## Configure one provider only
+
+Do not set up three providers at once. Pick one and make it healthy first.
+
+The official docs call out two simple paths:
+
+- run `hermes setup`
+- or run `hermes model` and select a provider interactively
+
+Most provider credentials end up in `~/.hermes/.env`. Keep that file minimal at first.
+
+## Validate the base loop
+
+After installation, reload your shell if needed and start Hermes:
+
+```bash
+source ~/.zshrc
+hermes
+```
+
+You are looking for one simple success condition: the agent responds normally in the CLI.
+
+If that works, your provider, runtime, and command path are healthy enough to continue.
+
+## What not to add yet
+
+Do not add these before the base loop is stable:
+
+- messaging platforms
+- voice mode
+- optional skills from the Hub
+- multi-agent delegation
+- scheduled automations
+
+Those are second-layer features. First make the core runtime boring and reliable.
+
+## If the install path fails
+
+Use the shortest debug sequence:
+
+```bash
+hermes setup
+hermes model
+hermes doctor
+```
+
+`hermes doctor` is the fastest way to catch missing dependencies, broken environment state, and common configuration mistakes.
+
+## Next move
+
+Once Hermes works in the CLI, continue to [Connect a Chat Channel](/quick-start/connect-channel) or stay local and jump straight to your first workflow.

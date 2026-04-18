@@ -1,11 +1,19 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import Callout from "@/components/Callout.astro";
+import { getEntryBySlug } from "@/lib/content";
+
+const entry = await getEntryBySlug("pages", "en", "privacy");
+if (!entry) {
+  throw new Error("Missing pages/privacy content");
+}
+
+const { Content } = await entry.render();
 ---
 
-<BaseLayout active="none" description="Example privacy page for AnyPlaybook." locale="en" path="/privacy/" title="Privacy | AnyPlaybook">
+<BaseLayout active="none" description="Privacy for Hermes Agent Playbook." locale="en" path="/privacy/" title="Privacy | Hermes Agent Playbook">
   <article class="section card page-prose">
     <h1>Privacy</h1>
-    <p>This template is designed for mostly static tutorial sites.</p>
-    <p>Downstream sites should document analytics, ad scripts, embeds, forms, and any external services they add.</p>
+    <Content components={{ Callout }} />
   </article>
 </BaseLayout>

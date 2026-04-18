@@ -1,0 +1,44 @@
+---
+import type { Locale } from "@/config/site";
+import TroubleshootCard from "@/components/TroubleshootCard.astro";
+import { troubleshootTabs } from "@/content/troubleshoot";
+import { localizePath, pickLocalizedList, pickLocalizedText } from "@/lib/i18n";
+
+const { locale } = Astro.props as { locale: Locale };
+
+const entries = troubleshootTabs.flatMap((tab) =>
+  tab.entries.map((entry) => ({
+    checks: pickLocalizedList(entry.checks, locale),
+    commonCauses: pickLocalizedList(entry.commonCauses, locale),
+    href: localizePath(`/troubleshoot/${entry.slug}`, locale),
+    summary: pickLocalizedText(entry.summary, locale),
+    symptom: pickLocalizedText(entry.symptom, locale),
+    title: pickLocalizedText(entry.title, locale),
+  })),
+);
+
+const initialVisibleCount = 3;
+const moreLabel = locale === "zh" ? "加载更多排错条目" : "More troubleshoot guides";
+---
+
+<div class="home-feed home-troubleshoot-feed" data-home-feed data-initial-visible-count={String(initialVisibleCount)}>
+  <div class="grid cols-3 home-feed-grid">
+    {
+      entries.map((entry, index) => (
+        <div class:list={["home-feed-item", index >= initialVisibleCount && "is-hidden"]} data-home-feed-item>
+          <TroubleshootCard entry={entry} href={entry.href} locale={locale} />
+        </div>
+      ))
+    }
+  </div>
+
+  {
+    entries.length > initialVisibleCount && (
+      <div class="home-feed-footer">
+        <button class="btn secondary home-feed-more" data-home-feed-more type="button">
+          {moreLabel}
+        </button>
+      </div>
+    )
+  }
+</div>

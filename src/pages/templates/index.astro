@@ -1,59 +1,25 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHero from "@/components/PageHero.astro";
-import ArticleCard from "@/components/ArticleCard.astro";
-import { getLocalizedCollection, getRouteSlug, getUniqueCategories } from "@/lib/content";
+import TemplatesTabs from "@/components/TemplatesTabs.astro";
+import { templatesIntro } from "@/content/templates";
 import { localizePath } from "@/lib/i18n";
 
 const locale = "en";
-const entries = await getLocalizedCollection("templates", locale);
-const categories = getUniqueCategories(entries);
 ---
 
-<BaseLayout active="templates" description="Template library for tutorial sites." locale={locale} path="/templates/" title="Templates | AnyPlaybook">
+<BaseLayout active="templates" description={templatesIntro.summary.en} locale={locale} path="/templates/" title="Hermes Agent Templates Directory">
   <PageHero
-    className="page-hero hero-single"
-    highlights={[
-      `${entries.length} reusable examples`,
-      "Difficulty + time metadata",
-      "Bilingual detail pages included",
+    className="page-hero templates-hero"
+    ctas={[
+      { href: "#templates-directory", label: "Browse by work goal", variant: "primary" },
+      { href: localizePath("/#quick-start", locale), label: "Review Quick Start first", variant: "secondary" },
     ]}
-    kicker="TEMPLATE LIBRARY"
-    summary="Workflow recipes grouped by practical goal, with difficulty, time, and risk cues."
-    title="Start from a reusable workflow."
+    kicker={templatesIntro.kicker}
+    summary={templatesIntro.summary.en}
+    title={templatesIntro.title.en}
   />
-  <div class="filter-rail" data-filter-group="templates">
-    <button class="filter-button is-active" data-filter="all" type="button">All categories</button>
-    {categories.map((category) => (
-      <button class="filter-button" data-filter={category} type="button">{category}</button>
-    ))}
+  <div id="templates-directory">
+    <TemplatesTabs locale={locale} />
   </div>
-  <div class="grid cols-3">
-    {entries.map((entry) => (
-      <div data-filter-item={entry.data.category}>
-        <ArticleCard eyebrow={`${entry.data.difficulty} · ${entry.data.time}`} href={localizePath(`/templates/${getRouteSlug(entry)}/`, locale)} summary={entry.data.summary} title={entry.data.title} />
-      </div>
-    ))}
-  </div>
-
-  <script is:inline>
-    (() => {
-      const group = document.querySelector('[data-filter-group="templates"]');
-      const items = Array.from(document.querySelectorAll("[data-filter-item]"));
-      if (!(group instanceof HTMLElement) || items.length === 0) return;
-
-      const buttons = Array.from(group.querySelectorAll("[data-filter]"));
-      buttons.forEach((button) => {
-        button.addEventListener("click", () => {
-          if (!(button instanceof HTMLElement)) return;
-          const value = button.dataset.filter ?? "all";
-          buttons.forEach((item) => item.classList.toggle("is-active", item === button));
-          items.forEach((item) => {
-            if (!(item instanceof HTMLElement)) return;
-            item.hidden = value !== "all" && item.dataset.filterItem !== value;
-          });
-        });
-      });
-    })();
-  </script>
 </BaseLayout>

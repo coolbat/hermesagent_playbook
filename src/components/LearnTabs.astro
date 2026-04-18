@@ -1,0 +1,84 @@
+---
+import type { Locale } from "@/config/site";
+import { learnTabs } from "@/content/learn";
+import { localizePath, pickLocalizedList, pickLocalizedText } from "@/lib/i18n";
+
+const { locale } = Astro.props as { locale: Locale };
+---
+
+<section class="section page-section learn-tabs-section" data-tab-root="learn">
+  <div class="learn-tabs-rail" role="tablist" aria-label="Learn topic tabs">
+    {
+      learnTabs.map((tab, index) => (
+        <button
+          aria-selected={index === 0 ? "true" : "false"}
+          class:list={["learn-tab-trigger", index === 0 && "is-active"]}
+          data-tab-trigger={tab.id}
+          role="tab"
+          type="button"
+        >
+          {pickLocalizedText(tab.label, locale)}
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    learnTabs.map((tab, index) => (
+      <div class:list={["learn-tab-panel", index !== 0 && "is-hidden"]} data-tab-panel={tab.id} role="tabpanel">
+        <div class="learn-tab-intro">
+          <p>{pickLocalizedText(tab.intro, locale)}</p>
+        </div>
+
+        <div class="grid cols-3 learn-tutorial-grid">
+          {tab.tutorials.map((tutorial) => (
+            <article class="card learn-tutorial-card">
+              <div class="learn-tutorial-meta">{pickLocalizedText(tutorial.meta, locale)}</div>
+              <h3>{pickLocalizedText(tutorial.title, locale)}</h3>
+              <p>{pickLocalizedText(tutorial.summary, locale)}</p>
+              <div class="tag-row">
+                {pickLocalizedList(tutorial.tags, locale).map((tag) => <span class="tag">{tag}</span>)}
+              </div>
+              <div class="cta-row">
+                <a class:list={["btn", tutorial.cta.variant ?? "secondary"]} href={localizePath(tutorial.cta.href, locale)}>
+                  {pickLocalizedText(tutorial.cta.label, locale)}
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+</section>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-tab-root="learn"]');
+    if (!(root instanceof HTMLElement)) return;
+
+    const triggers = Array.from(root.querySelectorAll("[data-tab-trigger]"));
+    const panels = Array.from(root.querySelectorAll("[data-tab-panel]"));
+
+    const setActive = (id) => {
+      triggers.forEach((trigger) => {
+        if (!(trigger instanceof HTMLElement)) return;
+        const active = trigger.dataset.tabTrigger === id;
+        trigger.classList.toggle("is-active", active);
+        trigger.setAttribute("aria-selected", active ? "true" : "false");
+      });
+
+      panels.forEach((panel) => {
+        if (!(panel instanceof HTMLElement)) return;
+        panel.classList.toggle("is-hidden", panel.dataset.tabPanel !== id);
+      });
+    };
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        if (!(trigger instanceof HTMLElement)) return;
+        setActive(trigger.dataset.tabTrigger ?? "");
+      });
+    });
+  })();
+</script>

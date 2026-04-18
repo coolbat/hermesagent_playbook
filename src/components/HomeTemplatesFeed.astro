@@ -1,0 +1,54 @@
+---
+import type { Locale } from "@/config/site";
+import TemplateCard from "@/components/TemplateCard.astro";
+import { templateTabs } from "@/content/templates";
+import { localizePath, pickLocalizedList, pickLocalizedText } from "@/lib/i18n";
+
+const { locale } = Astro.props as { locale: Locale };
+
+const templates = templateTabs.flatMap((tab) =>
+  tab.templates.map((template) => ({
+    channels: pickLocalizedList(template.channels, locale),
+    difficulty: pickLocalizedText(template.difficulty, locale),
+    href: localizePath(`/templates/${template.slug}`, locale),
+    recommendedFor: pickLocalizedText(template.recommendedFor, locale),
+    risk: pickLocalizedText(template.risk, locale),
+    summary: pickLocalizedText(template.summary, locale),
+    tags: pickLocalizedList(template.tags, locale),
+    time: pickLocalizedText(template.time, locale),
+    title: pickLocalizedText(template.title, locale),
+  })),
+);
+
+const initialVisibleCount = 3;
+const moreLabel = locale === "zh" ? "加载更多模板" : "More templates";
+---
+
+<div class="home-feed home-templates-feed" data-home-feed data-initial-visible-count={String(initialVisibleCount)}>
+  <div class="grid cols-3 home-feed-grid">
+    {
+      templates.map((entry, index) => (
+        <div class:list={["home-feed-item", index >= initialVisibleCount && "is-hidden"]} data-home-feed-item>
+          <TemplateCard
+            ctaVariantOverride="secondary"
+            entry={entry}
+            href={entry.href}
+            locale={locale}
+            showTags={false}
+            variant="default"
+          />
+        </div>
+      ))
+    }
+  </div>
+
+  {
+    templates.length > initialVisibleCount && (
+      <div class="home-feed-footer">
+        <button class="btn secondary home-feed-more" data-home-feed-more type="button">
+          {moreLabel}
+        </button>
+      </div>
+    )
+  }
+</div>

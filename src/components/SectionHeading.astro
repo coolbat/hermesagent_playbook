@@ -1,9 +1,16 @@
 ---
-const { title, summary, actionLabel, actionHref } = Astro.props as {
+const {
+  title,
+  summary,
+  actionHref,
+  actionLabel,
+  actionVariant = "secondary",
+} = Astro.props as {
   title: string;
   summary?: string;
-  actionLabel?: string;
   actionHref?: string;
+  actionLabel?: string;
+  actionVariant?: "primary" | "secondary" | "link";
 };
 ---
 
@@ -12,7 +19,9 @@ const { title, summary, actionLabel, actionHref } = Astro.props as {
     <h2>{title}</h2>
     {summary && <p class="small">{summary}</p>}
   </div>
-  {actionLabel && actionHref && (
-    <a class="btn secondary" href={actionHref}>{actionLabel}</a>
+  {actionHref && actionLabel && (
+    <a class:list={["btn", actionVariant]} href={actionHref}>
+      {actionLabel}
+    </a>
   )}
 </div>

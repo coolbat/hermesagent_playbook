@@ -4,22 +4,18 @@ const {
   title,
   summary,
   ctas = [],
-  highlights = [],
-  aside,
   className = "page-hero",
 } = Astro.props as {
   kicker: string;
   title: string;
   summary: string;
-  ctas?: { href: string; label: string; variant?: "primary" | "secondary" }[];
-  highlights?: string[];
-  aside?: Astro.ComponentFactory | string;
+  ctas?: { href: string; label: string; variant?: "primary" | "secondary" | "link" }[];
   className?: string;
 };
 ---
 
-<section class:list={[className, !aside && "hero-single"]}>
-  <article>
+<section class:list={["hero", !Astro.slots.has("aside") && "hero-single", className]}>
+  <article class="hero-main">
     <span class="kicker">{kicker}</span>
     <h1>{title}</h1>
     <p class="sub">{summary}</p>
@@ -34,21 +30,7 @@ const {
         </div>
       )
     }
-    {
-      highlights.length > 0 && (
-        <ul class="hero-highlights" aria-label="Highlights">
-          {highlights.map((item) => (
-            <li>{item}</li>
-          ))}
-        </ul>
-      )
-    }
+    <slot />
   </article>
-  {
-    aside && (
-      <aside class="card hero-aside">
-        {typeof aside === "string" ? <p class="hero-aside-copy">{aside}</p> : aside}
-      </aside>
-    )
-  }
+  {Astro.slots.has("aside") && <aside class="hero-side"><slot name="aside" /></aside>}
 </section>

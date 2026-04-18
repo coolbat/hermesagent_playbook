@@ -1,5 +1,9 @@
 ---
-const { entry, href } = Astro.props as {
+const {
+  entry,
+  href,
+  ctaLabel = "Open step guide",
+} = Astro.props as {
   entry: {
     step: string;
     title: string;
@@ -7,6 +11,7 @@ const { entry, href } = Astro.props as {
     bullets: string[];
   };
   href: string;
+  ctaLabel?: string;
 };
 ---
 
@@ -15,9 +20,9 @@ const { entry, href } = Astro.props as {
   <h3>{entry.title}</h3>
   <p>{entry.summary}</p>
   <ul class="card-bullets">
-    {entry.bullets.slice(0, 3).map((item) => <li>{item}</li>)}
+    {entry.bullets.map((item) => <li>{item}</li>)}
   </ul>
   <div class="cta-row">
-    <a class="btn secondary card-link" href={href}>Open guide</a>
+    <a class="btn secondary card-link" href={href}>{ctaLabel}</a>
   </div>
 </article>

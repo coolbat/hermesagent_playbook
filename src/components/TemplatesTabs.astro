@@ -1,0 +1,88 @@
+---
+import type { Locale } from "@/config/site";
+import { templateTabs } from "@/content/templates";
+import { localizePath, pickLocalizedList, pickLocalizedText } from "@/lib/i18n";
+import TemplateCard from "@/components/TemplateCard.astro";
+
+const { locale } = Astro.props as { locale: Locale };
+---
+
+<section class="section page-section templates-tabs-section" data-tab-root="templates">
+  <div class="templates-tabs-rail" role="tablist" aria-label="Template category tabs">
+    {
+      templateTabs.map((tab, index) => (
+        <button
+          aria-selected={index === 0 ? "true" : "false"}
+          class:list={["templates-tab-trigger", index === 0 && "is-active"]}
+          data-tab-trigger={tab.id}
+          role="tab"
+          type="button"
+        >
+          {pickLocalizedText(tab.label, locale)}
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    templateTabs.map((tab, index) => (
+      <div class:list={["templates-tab-panel", index !== 0 && "is-hidden"]} data-tab-panel={tab.id} role="tabpanel">
+        <div class="templates-tab-intro">
+          <p>{pickLocalizedText(tab.intro, locale)}</p>
+        </div>
+
+        <div class="grid cols-3 templates-grid">
+          {
+            tab.templates.map((entry) => (
+              <TemplateCard
+                entry={{
+                  title: pickLocalizedText(entry.title, locale),
+                  summary: pickLocalizedText(entry.summary, locale),
+                  difficulty: pickLocalizedText(entry.difficulty, locale),
+                  time: pickLocalizedText(entry.time, locale),
+                  risk: pickLocalizedText(entry.risk, locale),
+                  tags: pickLocalizedList(entry.tags, locale),
+                  channels: pickLocalizedList(entry.channels, locale),
+                  recommendedFor: pickLocalizedText(entry.recommendedFor, locale),
+                }}
+                href={localizePath(`/templates/${entry.slug}`, locale)}
+                locale={locale}
+              />
+            ))
+          }
+        </div>
+      </div>
+    ))
+  }
+</section>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-tab-root="templates"]');
+    if (!(root instanceof HTMLElement)) return;
+
+    const triggers = Array.from(root.querySelectorAll("[data-tab-trigger]"));
+    const panels = Array.from(root.querySelectorAll("[data-tab-panel]"));
+
+    const setActive = (id) => {
+      triggers.forEach((trigger) => {
+        if (!(trigger instanceof HTMLElement)) return;
+        const active = trigger.dataset.tabTrigger === id;
+        trigger.classList.toggle("is-active", active);
+        trigger.setAttribute("aria-selected", active ? "true" : "false");
+      });
+
+      panels.forEach((panel) => {
+        if (!(panel instanceof HTMLElement)) return;
+        panel.classList.toggle("is-hidden", panel.dataset.tabPanel !== id);
+      });
+    };
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        if (!(trigger instanceof HTMLElement)) return;
+        setActive(trigger.dataset.tabTrigger ?? "");
+      });
+    });
+  })();
+</script>

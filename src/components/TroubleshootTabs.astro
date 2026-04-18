@@ -1,0 +1,85 @@
+---
+import type { Locale } from "@/config/site";
+import { troubleshootTabs } from "@/content/troubleshoot";
+import { localizePath, pickLocalizedList, pickLocalizedText } from "@/lib/i18n";
+import TroubleshootCard from "@/components/TroubleshootCard.astro";
+
+const { locale } = Astro.props as { locale: Locale };
+---
+
+<section class="section page-section troubleshoot-tabs-section" data-tab-root="troubleshoot" id="troubleshoot-directory">
+  <div class="troubleshoot-tabs-rail" role="tablist" aria-label="Troubleshoot symptom tabs">
+    {
+      troubleshootTabs.map((tab, index) => (
+        <button
+          aria-selected={index === 0 ? "true" : "false"}
+          class:list={["troubleshoot-tab-trigger", index === 0 && "is-active"]}
+          data-tab-trigger={tab.id}
+          role="tab"
+          type="button"
+        >
+          {pickLocalizedText(tab.label, locale)}
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    troubleshootTabs.map((tab, index) => (
+      <div class:list={["troubleshoot-tab-panel", index !== 0 && "is-hidden"]} data-tab-panel={tab.id} role="tabpanel">
+        <div class="troubleshoot-tab-intro">
+          <p>{pickLocalizedText(tab.intro, locale)}</p>
+        </div>
+
+        <div class="grid cols-3 troubleshoot-grid">
+          {
+            tab.entries.map((entry) => (
+              <TroubleshootCard
+                entry={{
+                  title: pickLocalizedText(entry.title, locale),
+                  symptom: pickLocalizedText(entry.symptom, locale),
+                  summary: pickLocalizedText(entry.summary, locale),
+                  commonCauses: pickLocalizedList(entry.commonCauses, locale),
+                  checks: pickLocalizedList(entry.checks, locale),
+                }}
+                href={localizePath(`/troubleshoot/${entry.slug}`, locale)}
+                locale={locale}
+              />
+            ))
+          }
+        </div>
+      </div>
+    ))
+  }
+</section>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-tab-root="troubleshoot"]');
+    if (!(root instanceof HTMLElement)) return;
+
+    const triggers = Array.from(root.querySelectorAll("[data-tab-trigger]"));
+    const panels = Array.from(root.querySelectorAll("[data-tab-panel]"));
+
+    const setActive = (id) => {
+      triggers.forEach((trigger) => {
+        if (!(trigger instanceof HTMLElement)) return;
+        const active = trigger.dataset.tabTrigger === id;
+        trigger.classList.toggle("is-active", active);
+        trigger.setAttribute("aria-selected", active ? "true" : "false");
+      });
+
+      panels.forEach((panel) => {
+        if (!(panel instanceof HTMLElement)) return;
+        panel.classList.toggle("is-hidden", panel.dataset.tabPanel !== id);
+      });
+    };
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        if (!(trigger instanceof HTMLElement)) return;
+        setActive(trigger.dataset.tabTrigger ?? "");
+      });
+    });
+  })();
+</script>

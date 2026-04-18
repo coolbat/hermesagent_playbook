@@ -1,11 +1,19 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import Callout from "@/components/Callout.astro";
+import { getEntryBySlug } from "@/lib/content";
+
+const entry = await getEntryBySlug("pages", "en", "terms");
+if (!entry) {
+  throw new Error("Missing pages/terms content");
+}
+
+const { Content } = await entry.render();
 ---
 
-<BaseLayout active="none" description="Example terms page for AnyPlaybook." locale="en" path="/terms/" title="Terms | AnyPlaybook">
+<BaseLayout active="none" description="Terms for Hermes Agent Playbook." locale="en" path="/terms/" title="Terms | Hermes Agent Playbook">
   <article class="section card page-prose">
     <h1>Terms</h1>
-    <p>AnyPlaybook is intended for educational publishing and product tutorial sites.</p>
-    <p>Forked sites should add their own acceptable use, no-warranty, and third-party service boundaries.</p>
+    <Content components={{ Callout }} />
   </article>
 </BaseLayout>

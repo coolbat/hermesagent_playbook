@@ -3,8 +3,10 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import remarkGfm from "remark-gfm";
 
+const site = process.env.SITE_URL ?? "https://hermes-agent-playbook.example.com";
+
 export default defineConfig({
-  site: "https://example.anyplaybook.dev",
+  site,
   integrations: [mdx(), sitemap()],
   markdown: {
     remarkPlugins: [remarkGfm],

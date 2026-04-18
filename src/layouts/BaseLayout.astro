@@ -64,25 +64,15 @@ const themeOptions = [
     {updatedAt && <meta content={updatedAt.toISOString()} property="article:modified_time" />}
     <script is:inline>
       (() => {
-        const storageKey = "theme-preference";
         const root = document.documentElement;
-        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-        const getStoredTheme = () => {
-          const value = window.localStorage.getItem(storageKey);
-          return value === "light" || value === "dark" || value === "system" ? value : "system";
-        };
-
-        const resolveTheme = (theme) => (theme === "system" ? (mediaQuery.matches ? "dark" : "light") : theme);
-
-        const applyTheme = (theme) => {
-          const resolvedTheme = resolveTheme(theme);
-          root.dataset.theme = resolvedTheme;
-          root.dataset.themePreference = theme;
-          root.style.colorScheme = resolvedTheme;
-        };
-
-        applyTheme(getStoredTheme());
+        const stored = window.localStorage.getItem("theme-preference");
+        const preference = stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
+        const resolved = preference === "system"
+          ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+          : preference;
+        root.dataset.theme = resolved;
+        root.dataset.themePreference = preference;
+        root.style.colorScheme = resolved;
       })();
     </script>
     <link href={canonical} rel="canonical" />
@@ -94,6 +84,9 @@ const themeOptions = [
   </head>
   <body>
     <div class="site-root">
+      <a class="skip-link" href="#main-content">
+        {locale === "zh" ? "跳到正文" : "Skip to content"}
+      </a>
       <header class="topbar">
         <div class="container nav">
           <div class="nav-left">
@@ -287,16 +280,20 @@ const themeOptions = [
         </div>
       </header>
 
-      <main class="container">
+      <main class="container" data-pagefind-body id="main-content">
         <slot />
       </main>
 
       <footer class="container footer">
         <div class="footer-top">
-          <div>
+          <div class="footer-brand">
             <strong>{siteConfig.name}</strong>
             <p class="small">
-              {locale === "zh" ? siteConfig.tagline.zh : siteConfig.tagline.en}
+              {
+                locale === "zh"
+                  ? "一个独立维护的双语 Hermes Agent 入门站，目标是把用户从安装与配置带到第一条稳定可复用的工作流。"
+                  : "Independent bilingual onboarding and workflow guidance for teams that want a cleaner path from first install to a dependable Hermes Agent loop."
+              }
             </p>
           </div>
           <div class="footer-links">
@@ -312,6 +309,13 @@ const themeOptions = [
             }
           </div>
         </div>
+        <p class="footer-note">
+          {
+            locale === "zh"
+              ? "本站内容主要用于 Hermes Agent 学习与上手，不构成平台行为保证、服务可用性承诺或法律、合规建议。"
+              : "This site is educational content for Hermes Agent users. It does not guarantee platform behavior, service uptime, or legal and compliance outcomes."
+          }
+        </p>
       </footer>
     </div>
     <script is:inline>

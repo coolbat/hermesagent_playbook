@@ -1,48 +1,198 @@
 ---
+import { officialSkillCategories, officialSkillsHubStats, officialSkillsHubUrl } from "@/content/skills";
+import { pickLocalizedText } from "@/lib/i18n";
 import type { Locale } from "@/config/site";
-import { skillGroups } from "@/config/skills";
 
 const { locale } = Astro.props as { locale: Locale };
+
+const localizedCategories = officialSkillCategories.map((category) => ({
+  id: category.id,
+  count: category.officialCount,
+  label: pickLocalizedText(category.label, locale),
+  skills: category.skills.map((skill) => ({
+    name: pickLocalizedText(skill.name, locale),
+    source: pickLocalizedText(skill.status, locale) === "Built-in" || pickLocalizedText(skill.status, locale) === "内置"
+      ? (locale === "zh" ? "内置" : "Built-in")
+      : (locale === "zh" ? "可选" : "Optional"),
+    summary: pickLocalizedText(skill.summary, locale),
+  })),
+}));
+
+const allSkills = localizedCategories.flatMap((category) => category.skills);
+const categories = [
+  {
+    id: "all",
+    label: locale === "zh" ? "全部分类" : "All categories",
+    count: officialSkillsHubStats.totalSkills,
+    skills: allSkills,
+  },
+  ...localizedCategories,
+];
+
+const initialVisibleCount = 9;
 ---
 
-{
-  skillGroups.map((group, index) => (
-    <section class="section">
-      <div class="tabs-rail">
-        {skillGroups.map((tab) => (
-          <span class:list={["tab-trigger", tab.id === group.id && "is-active"]}>
-            {locale === "zh" ? tab.label.zh : tab.label.en}
-          </span>
-        ))}
-      </div>
-      {index === 0 && (
-        <p class="section-intro">
-          {locale === "zh"
-            ? "这个页面是“资源目录”版块的示例实现，当前用 skills 数据演示，fork 后可以替换成插件、资源、官方文档、推荐工具或服务清单。"
-            : "This page is an example pattern for a resources directory. It currently uses skills data, but downstream sites can replace it with plugins, documentation links, recommended tools, or service lists."}
-        </p>
-      )}
-      <div class="grid cols-2">
-        {group.items.map((item) => (
-          <article class="card">
-            <div class="detail-context">
-              <span class="detail-chip">{item.name}</span>
-              <span class="detail-chip">{item.risk}</span>
-              {item.starter && <span class="detail-chip">Starter</span>}
-            </div>
-            <p>{locale === "zh" ? item.summary.zh : item.summary.en}</p>
-            <div class="callout">
-              <p class="eyebrow">{locale === "zh" ? "示例条目" : "Example entry"}</p>
-              <code>{item.install}</code>
-            </div>
-            <ul>
-              {(locale === "zh" ? item.useCases.zh : item.useCases.en).map((useCase) => (
-                <li>{useCase}</li>
-              ))}
-            </ul>
-          </article>
-        ))}
-      </div>
-    </section>
-  ))
-}
+<section class="section page-section skills-hub-section">
+  <div class="skills-browser" data-skills-browser data-initial-categories="7">
+    <nav class="skills-category-rail" aria-label={locale === "zh" ? "Skills categories" : "Skills categories"}>
+      {
+        categories.map((category, index) => (
+          <button
+            class:list={["skills-category-chip", index === 0 && "is-active", index >= 7 && "is-hidden"]}
+            data-skill-category={category.id}
+            data-extra-category={index >= 7 ? "true" : "false"}
+            type="button"
+          >
+            <span>{category.label}</span>
+            <strong>{category.count}</strong>
+          </button>
+        ))
+      }
+
+      {
+        categories.length > 7 && (
+          <button class="btn secondary skills-category-more" data-skills-categories-more type="button">
+            {locale === "zh" ? "更多分类" : "More categories"}
+          </button>
+        )
+      }
+    </nav>
+
+    {
+      categories.map((category, index) => (
+        <div class:list={["skills-panel", index !== 0 && "is-hidden"]} data-skills-panel={category.id}>
+          <div class="grid cols-3 skills-grid">
+            {
+              category.skills.map((skill, skillIndex) => (
+                <article class:list={["card", "skill-card", "skill-hub-card", skillIndex >= initialVisibleCount && "is-hidden"]} data-skill-card>
+                  <div class="skill-card-head">
+                    <div class="skill-card-headline">
+                      <h3>{skill.name}</h3>
+                      <span class="skill-status-pill">{skill.source}</span>
+                    </div>
+                  </div>
+                  <p>{skill.summary}</p>
+                  <div class="cta-row">
+                    <a class="btn secondary" href={officialSkillsHubUrl} rel="noreferrer" target="_blank">
+                      {locale === "zh" ? "前往官方 Skills Hub" : "Open official Skills Hub"}
+                    </a>
+                  </div>
+                </article>
+              ))
+            }
+          </div>
+
+          {
+            category.skills.length > initialVisibleCount && (
+              <div class="home-feed-footer">
+                <button class="btn secondary home-feed-more" data-skills-cards-more type="button">
+                  {locale === "zh" ? "加载更多技能" : "More skills"}
+                </button>
+              </div>
+            )
+          }
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const initSkillsBrowser = () => {
+      const root = document.querySelector("[data-skills-browser]");
+      if (!(root instanceof HTMLElement) || root.dataset.skillsBrowserReady === "true") return;
+
+      const categoryButtons = Array.from(root.querySelectorAll("[data-skill-category]"));
+      const categoryMoreButton = root.querySelector("[data-skills-categories-more]");
+      const panels = Array.from(root.querySelectorAll("[data-skills-panel]"));
+      let activeCategory = "all";
+      let categoriesExpanded = false;
+
+      const syncCategories = () => {
+        categoryButtons.forEach((button, index) => {
+          if (!(button instanceof HTMLButtonElement)) return;
+          const id = button.dataset.skillCategory ?? "";
+          const hidden = !categoriesExpanded && index >= 7;
+          button.classList.toggle("is-active", id === activeCategory);
+          button.hidden = hidden;
+          button.style.display = hidden ? "none" : "";
+        });
+
+        if (categoryMoreButton instanceof HTMLButtonElement) {
+          categoryMoreButton.hidden = categoriesExpanded;
+        }
+      };
+
+      const syncPanels = () => {
+        panels.forEach((panel) => {
+          if (!(panel instanceof HTMLElement)) return;
+          const visible = panel.dataset.skillsPanel === activeCategory;
+          panel.hidden = !visible;
+          panel.style.display = visible ? "" : "none";
+        });
+      };
+
+      const initPanelMore = (panel) => {
+        if (!(panel instanceof HTMLElement) || panel.dataset.skillsPanelReady === "true") return;
+
+        const cards = Array.from(panel.querySelectorAll("[data-skill-card]"));
+        const button = panel.querySelector("[data-skills-cards-more]");
+        let visibleCount = 9;
+
+        const sync = () => {
+          cards.forEach((card, index) => {
+            if (!(card instanceof HTMLElement)) return;
+            const hidden = index >= visibleCount;
+            card.hidden = hidden;
+            card.style.display = hidden ? "none" : "";
+          });
+
+          if (button instanceof HTMLButtonElement) {
+            button.hidden = visibleCount >= cards.length;
+          }
+        };
+
+        if (button instanceof HTMLButtonElement) {
+          button.addEventListener("click", () => {
+            visibleCount = Math.min(visibleCount + 9, cards.length);
+            sync();
+          });
+        }
+
+        panel.dataset.skillsPanelReady = "true";
+        sync();
+      };
+
+      panels.forEach((panel) => initPanelMore(panel));
+
+      categoryButtons.forEach((button) => {
+        if (!(button instanceof HTMLButtonElement)) return;
+        button.addEventListener("click", () => {
+          activeCategory = button.dataset.skillCategory ?? "all";
+          syncCategories();
+          syncPanels();
+        });
+      });
+
+      if (categoryMoreButton instanceof HTMLButtonElement) {
+        categoryMoreButton.addEventListener("click", () => {
+          categoriesExpanded = true;
+          syncCategories();
+        });
+      }
+
+      root.dataset.skillsBrowserReady = "true";
+      syncCategories();
+      syncPanels();
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSkillsBrowser, { once: true });
+    } else {
+      initSkillsBrowser();
+    }
+
+    document.addEventListener("astro:page-load", initSkillsBrowser);
+  })();
+</script>

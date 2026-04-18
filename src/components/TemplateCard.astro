@@ -1,0 +1,60 @@
+---
+const {
+  entry,
+  href,
+  locale,
+  variant = "default",
+  showTags = true,
+  ctaLabel,
+  ctaVariantOverride,
+} = Astro.props as {
+  entry: {
+    title: string;
+    summary: string;
+    difficulty: string;
+    time: string;
+    risk: string;
+    tags: string[];
+    channels: string[];
+    recommendedFor: string;
+  };
+  href: string;
+  locale: "en" | "zh";
+  variant?: "default" | "featured";
+  showTags?: boolean;
+  ctaLabel?: string;
+  ctaVariantOverride?: "primary" | "secondary" | "ghost" | "link";
+};
+
+const copy = {
+  eyebrow: locale === "zh" ? "精选模板" : "Featured starter",
+  recommendedFor: locale === "zh" ? "适合：" : "Recommended for: ",
+  channels: locale === "zh" ? "渠道：" : "Channels: ",
+  openTemplate: ctaLabel ?? (locale === "zh" ? "查看模板" : "Open template"),
+};
+---
+
+<article class:list={["card", "template-card", `template-card-${variant}`]}>
+  {variant === "featured" && <p class="eyebrow">{copy.eyebrow}</p>}
+  <h3>{entry.title}</h3>
+  <p>{entry.summary}</p>
+  <p class="meta">
+    {entry.difficulty} · {entry.time} · {entry.risk}
+  </p>
+  <p class="meta template-recommended">
+    {copy.recommendedFor}
+    {entry.recommendedFor}
+  </p>
+  <p class="meta">
+    {copy.channels}
+    {entry.channels.join(" / ")}
+  </p>
+  {showTags && (
+    <div class="tag-row">
+      {entry.tags.map((tag) => <span class="tag">{tag}</span>)}
+    </div>
+  )}
+  <div class="cta-row">
+    <a class:list={["btn", ctaVariantOverride ?? "secondary"]} href={href}>{copy.openTemplate}</a>
+  </div>
+</article>

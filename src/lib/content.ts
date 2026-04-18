@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 import { defaultLocale, type Locale } from "@/config/site";
+import { getCollectionEntryFallback } from "@/lib/source-content";
 
 export type CollectionName = "pages" | "quickStart" | "learn" | "templates" | "troubleshoot";
 type EntryWithMeta = {
@@ -43,7 +44,27 @@ export async function getLocalizedCollection<T extends CollectionName>(
       return normalizedId.startsWith("en/") || !normalizedId.startsWith("zh/");
     }
     return normalizedId.startsWith(`${locale}/`);
-  });
+  }).map((entry) => {
+    if (!tagCollections.includes(collection as TagCollectionName)) {
+      return entry;
+    }
+
+    const fallback = getCollectionEntryFallback(collection as TagCollectionName, getRouteSlug(entry), locale);
+    if (!fallback) {
+      return entry;
+    }
+
+    return {
+      ...entry,
+      data: {
+        ...entry.data,
+        category: entry.data.category ?? fallback.category,
+        publishedAt: entry.data.publishedAt ?? fallback.publishedAt,
+        tags: entry.data.tags && entry.data.tags.length > 0 ? entry.data.tags : fallback.tags,
+        updatedAt: entry.data.updatedAt ?? fallback.updatedAt,
+      },
+    };
+  }) as CollectionEntry<T>[];
 }
 
 export async function getEntryBySlug<T extends CollectionName>(

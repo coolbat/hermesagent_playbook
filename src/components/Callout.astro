@@ -1,0 +1,10 @@
+---
+const { title } = Astro.props as { title?: string };
+---
+
+<aside class="callout prose-callout">
+  {title && <p class="eyebrow">{title}</p>}
+  <div class="callout-body">
+    <slot />
+  </div>
+</aside>

@@ -1,0 +1,105 @@
+---
+import type { Locale } from "@/config/site";
+import { learnTabs } from "@/content/learn";
+import { localizePath, pickLocalizedList, pickLocalizedText } from "@/lib/i18n";
+
+const { locale } = Astro.props as { locale: Locale };
+
+const tutorials = learnTabs.flatMap((tab) =>
+  tab.tutorials.map((tutorial) => ({
+    href: localizePath(tutorial.cta.href, locale),
+    meta: pickLocalizedText(tutorial.meta, locale),
+    section: pickLocalizedText(tab.label, locale),
+    summary: pickLocalizedText(tutorial.summary, locale),
+    tags: pickLocalizedList(tutorial.tags, locale),
+    title: pickLocalizedText(tutorial.title, locale),
+    ctaLabel: pickLocalizedText(tutorial.cta.label, locale),
+  })),
+);
+
+const initialVisibleCount = 3;
+const moreLabel = locale === "zh" ? "加载更多教程" : "More tutorials";
+---
+
+<div class="home-feed home-learn-feed" data-home-feed data-initial-visible-count={String(initialVisibleCount)}>
+  <div class="grid cols-3 learn-tutorial-grid home-feed-grid home-learn-grid">
+    {
+      tutorials.map((tutorial, index) => (
+        <article
+          class:list={["card", "learn-tutorial-card", "home-feed-item", index >= initialVisibleCount && "is-hidden"]}
+          data-home-feed-item
+        >
+          <div class="home-learn-card-head">
+            <div class="learn-tutorial-meta">{tutorial.meta}</div>
+            <span class="tag">{tutorial.section}</span>
+          </div>
+          <h3>{tutorial.title}</h3>
+          <p>{tutorial.summary}</p>
+          <div class="tag-row">
+            {tutorial.tags.map((tag) => <span class="tag">{tag}</span>)}
+          </div>
+          <div class="cta-row">
+            <a class="btn secondary" href={tutorial.href}>
+              {tutorial.ctaLabel}
+            </a>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  {
+    tutorials.length > initialVisibleCount && (
+      <div class="home-feed-footer home-learn-feed-footer">
+        <button class="btn secondary home-feed-more home-learn-more" data-home-feed-more type="button">
+          {moreLabel}
+        </button>
+      </div>
+    )
+  }
+</div>
+
+<script is:inline>
+  (() => {
+    const initHomeFeeds = () => {
+      const roots = Array.from(document.querySelectorAll("[data-home-feed]"));
+
+      roots.forEach((root) => {
+        if (!(root instanceof HTMLElement) || root.dataset.homeFeedReady === "true") return;
+
+        const cards = Array.from(root.querySelectorAll("[data-home-feed-item]"));
+        const button = root.querySelector("[data-home-feed-more]");
+        if (!(button instanceof HTMLButtonElement)) return;
+
+        const initialVisibleCount = Number(root.dataset.initialVisibleCount ?? "3");
+        const step = initialVisibleCount;
+        let visibleCount = initialVisibleCount;
+
+        const sync = () => {
+          cards.forEach((card, index) => {
+            if (!(card instanceof HTMLElement)) return;
+            card.classList.toggle("is-hidden", index >= visibleCount);
+          });
+
+          button.hidden = visibleCount >= cards.length;
+        };
+
+        button.addEventListener("click", () => {
+          visibleCount = Math.min(visibleCount + step, cards.length);
+          sync();
+        });
+
+        root.dataset.homeFeedReady = "true";
+        sync();
+      });
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initHomeFeeds, { once: true });
+    } else {
+      initHomeFeeds();
+    }
+
+    document.addEventListener("astro:page-load", initHomeFeeds);
+  })();
+</script>
