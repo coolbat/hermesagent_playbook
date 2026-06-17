@@ -1,0 +1,103 @@
+---
+title: "Write Your First Hermes Skill"
+summary: "Turn one repeated workflow into a small SKILL.md instead of building a broad automation too early."
+readingTime: 9 min
+---
+
+A skill is not a plugin, a script, or a pile of prompts. It is a small, task-specific instruction document that Hermes can load when the task matches.
+
+The first skill should teach one workflow, not your entire job.
+
+## Pick a narrow task
+
+Good first skills:
+
+- summarize a weekly product update
+- review a PR with your team's checklist
+- turn meeting notes into action items
+- classify support messages by severity
+- prepare a Feishu announcement draft
+
+Bad first skills:
+
+- manage the whole company
+- write all content
+- fix any codebase
+- do all operations work
+
+If the skill cannot be tested with one input and one expected output, it is too broad.
+
+## Create the folder
+
+```bash
+mkdir -p ~/.hermes/skills/weekly-update
+```
+
+Then create:
+
+```text
+~/.hermes/skills/weekly-update/SKILL.md
+```
+
+## Minimal skill shape
+
+```markdown
+---
+name: weekly-update
+description: Turn raw weekly notes into a concise team update with blockers, decisions, and next actions.
+---
+
+# Weekly Update
+
+## When to use
+
+Use this when the user provides raw weekly notes, project updates, or messy status fragments and asks for a team update.
+
+## Output format
+
+Return:
+
+1. Summary
+2. Blockers
+3. Decisions
+4. Next actions
+
+## Rules
+
+- Keep blockers near the top.
+- Do not invent owners.
+- Preserve dates exactly as provided.
+- Ask a question if the audience or time range is missing.
+```
+
+## Test it manually
+
+Ask Hermes:
+
+```text
+Use the weekly-update skill. Here are rough notes...
+```
+
+Then inspect the output:
+
+- Did it load the skill?
+- Did it follow the output format?
+- Did it avoid inventing missing facts?
+- Did the description match the task well enough?
+
+If the skill did not load, improve the `description`. Skill descriptions are routing metadata, not marketing copy.
+
+## Improve only after repeated use
+
+Do not make the first version clever. Add details only when you see a repeated failure:
+
+- a missing section
+- a recurring hallucination
+- a formatting rule the agent keeps ignoring
+- a source boundary it needs to respect
+
+Each addition should prevent a real failure. Otherwise the skill becomes long and harder to load correctly.
+
+## Source notes
+
+This guide is based on the official Hermes skills guide and PR-review skill example pattern, simplified for first-time users.

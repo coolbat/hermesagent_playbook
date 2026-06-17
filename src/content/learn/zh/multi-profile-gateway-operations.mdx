@@ -1,0 +1,94 @@
+---
+title: "多 Profile Gateway：避免记忆和状态串线"
+summary: "只有当记忆、skills、渠道和服务归属真的需要隔离时，才值得同时运行多个 Hermes profile。"
+readingTime: 10 分钟
+---
+
+多个 Hermes profile 可以让你并排运行多个 agent：调研机器人、写作机器人、生产运维机器人、沙盒机器人，各自有独立状态。
+
+但这件事只有在边界清楚时才有价值。
+
+## 什么时候值得多 profile
+
+当你需要隔离这些东西时，才用多个 profile：
+
+- 消息账号
+- 记忆和用户画像
+- skills
+- provider 选择
+- cron 计划
+- 安全边界
+
+不要只是为了整理 prompt 就创建 profile。如果工具、记忆、渠道和风险等级都一样，普通 skill 或指令文件可能已经够用。
+
+## 用职责命名
+
+profile 名称应该描述职责：
+
+```text
+research
+writing
+ops-prod
+ops-sandbox
+family-assistant
+```
+
+避免 `agent1`、`test2` 这类名字。六周之后，服务名和日志仍然应该能看懂。
+
+## 凭证保持隔离
+
+每个 profile 都应该有自己的 `HERMES_HOME`、config、env、memory 和 skills。多 profile 的核心价值就是隔离。
+
+每个 profile 至少记录：
+
+- 消息账号或机器人身份
+- 目标频道
+- 模型/provider
+- 允许使用的 skills
+- cron jobs
+- 负责人
+
+## Gateway 运行方式
+
+官方多 profile gateway 模式会让每个 profile 拥有自己的服务。这比一个模糊的大进程更好，因为状态和日志可以按 profile 检查。
+
+安装服务之前，先逐个 profile 前台测试：
+
+```bash
+HERMES_HOME=/path/to/profile hermes doctor
+HERMES_HOME=/path/to/profile hermes gateway
+```
+
+然后给对应机器人发消息，确认是正确 profile 在回复。
+
+## 串线检查
+
+上线前做这些检查：
+
+- Bot A 不会用 Bot B 的人设回复
+- Bot A 看不到 Bot B 的私有记忆
+- Bot A 的 cron 不会投递到 Bot B 的频道
+- profile 日志显示的是预期 provider 和平台
+- 服务名能清楚识别 profile
+
+只要有一项失败，就先修路由，不要继续加自动化。
+
+## 和 cron 一起用要克制
+
+Hermes cron 可以指定 profile，这对夜间运维机器人或调研队列很有用。但 profile 切换是运行时边界，任务要保持简单、可检查。
+
+好的写法：
+
+```text
+每天 03:00，用 ops-prod profile 汇总安全日志异常，并投递到飞书。
+```
+
+太宽的写法：
+
+```text
+每天晚上使用所有 profile 优化所有事情，并通知所有人。
+```
+
+## 资料说明
+
+这篇基于官方 multi-profile gateway 和 cron profile 行为做运行清单式整理，适合作为官方命令级文档的补充。

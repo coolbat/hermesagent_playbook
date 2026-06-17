@@ -1,0 +1,103 @@
+---
+title: "写你的第一个 Hermes Skill"
+summary: "把一个重复工作流沉淀成小而清楚的 SKILL.md，不要一开始就做大而全的自动化。"
+readingTime: 9 分钟
+---
+
+Skill 不是插件、脚本，也不是一大堆提示词。它是一个小型、面向特定任务的说明文档，Hermes 会在任务匹配时加载它。
+
+第一个 skill 应该教会 Hermes 一个工作流，而不是教它“完成你的全部工作”。
+
+## 先选一个窄任务
+
+适合做第一个 skill 的任务：
+
+- 把每周产品进展整理成团队更新
+- 按团队 checklist review PR
+- 把会议记录整理成行动项
+- 按严重程度分类客服消息
+- 起草一份飞书内部通知
+
+不适合作为第一个 skill：
+
+- 管理整个公司
+- 写所有内容
+- 修任何代码库
+- 处理所有运维工作
+
+如果这个 skill 不能用一个输入和一个预期输出测试，它就太宽了。
+
+## 创建目录
+
+```bash
+mkdir -p ~/.hermes/skills/weekly-update
+```
+
+然后创建：
+
+```text
+~/.hermes/skills/weekly-update/SKILL.md
+```
+
+## 最小 skill 结构
+
+```markdown
+---
+name: weekly-update
+description: Turn raw weekly notes into a concise team update with blockers, decisions, and next actions.
+---
+
+# Weekly Update
+
+## When to use
+
+Use this when the user provides raw weekly notes, project updates, or messy status fragments and asks for a team update.
+
+## Output format
+
+Return:
+
+1. Summary
+2. Blockers
+3. Decisions
+4. Next actions
+
+## Rules
+
+- Keep blockers near the top.
+- Do not invent owners.
+- Preserve dates exactly as provided.
+- Ask a question if the audience or time range is missing.
+```
+
+## 手动测试
+
+向 Hermes 发送：
+
+```text
+Use the weekly-update skill. Here are rough notes...
+```
+
+然后检查输出：
+
+- 它是否加载了 skill
+- 是否遵守输出结构
+- 是否避免编造缺失事实
+- description 是否足够匹配这个任务
+
+如果 skill 没有加载，先改 `description`。skill description 是路由元数据，不是宣传语。
+
+## 只根据真实失败改进
+
+第一版不要追求聪明。只有当你看到重复失败时，再加规则：
+
+- 总是漏掉某个 section
+- 经常编造不存在的负责人
+- 总是忽略某个格式要求
+- 需要明确某个来源边界
+
+每次补充都应该解决真实问题。否则 skill 会越来越长，反而更难被正确加载。
+
+## 资料说明
+
+这篇基于 Hermes 官方 skills 指南和 PR review skill 示例模式，简化成适合第一次动手的版本。

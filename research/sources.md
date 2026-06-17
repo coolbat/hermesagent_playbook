@@ -1,0 +1,28 @@
+# Sources
+
+- Hermes Agent official docs, overview and install: https://hermes-agent.nousresearch.com/docs/zh-Hans/
+  - Matters because it is the primary source for positioning, installation paths, and supported workflows.
+- Hermes Agent official installation guide: https://hermes-agent.nousresearch.com/docs/zh-Hans/getting-started/installation
+  - Matters for native Windows, WSL2, Termux, dependency, and post-install command details.
+- Hermes Agent official quickstart: https://hermes-agent.nousresearch.com/docs/zh-Hans/getting-started/quickstart
+  - Matters for the recommended "prove one real conversation first" sequence.
+- Hermes Agent cron docs: https://hermes-agent.nousresearch.com/docs/zh-Hans/user-guide/features/cron
+  - Matters for scheduled jobs, skills, workdir, profile targeting, delivery targets, and no-agent script jobs.
+- Hermes Agent messaging gateway docs: https://hermes-agent.nousresearch.com/docs/zh-Hans/user-guide/messaging/
+  - Matters for gateway service patterns and platform operations.
+- Hermes Agent skills guide: https://hermes-agent.nousresearch.com/docs/zh-Hans/guides/work-with-skills
+  - Matters for skill file structure and daily usage.
+- Hermes Agent multi-profile gateway docs: https://hermes-agent.nousresearch.com/docs/zh-Hans/user-guide/multi-profile-gateways
+  - Matters for running multiple always-on agents with isolated state.
+- Hermes Agent CLI command reference: https://hermes-agent.nousresearch.com/docs/zh-Hans/reference/cli-commands
+  - Matters for log commands and operational diagnostics.
+- Open WebUI Hermes Agent connection docs: https://docs.openwebui.com/getting-started/quick-start/connect-an-agent/hermes-agent/
+  - Matters for API server setup and `/v1` connection details.
+- WaytoAGI public roundup: https://www.waytoagi.com/blog/news-20260410
+  - Matters as topic discovery for popular Hermes tutorial themes, including cold tips, Windows install, and first things to try.
+- User-provided WaytoAGI Feishu wiki: https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e
+  - Attempted but redirected to Feishu login in the browsing environment; used only as a topic pointer, not as source text.
+- Zhihu Feishu setup tutorial: https://zhuanlan.zhihu.com/p/2028895886046971029
+  - Matters as a community example of popular Feishu setup questions and practical failure points; not copied directly.
+- Runoob Hermes Agent page: https://www.runoob.com/ai-agent/hermes-agent.html
+  - Matters as a community signal that platform setup, gateway setup, and beginner commands are high-demand tutorial topics.

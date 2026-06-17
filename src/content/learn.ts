@@ -118,6 +118,18 @@ export const learnTabs: LearnTab[] = [
         cta: { label: { en: "Open guide", zh: "打开指南" }, href: "/learn/local-vs-vps", variant: "secondary" },
       },
       {
+        id: "windows-wsl-native-setup",
+        slug: "windows-wsl-native-setup",
+        title: { en: "Windows, WSL2, or VPS: Choose the Right Hermes Setup", zh: "Windows、WSL2 还是 VPS：先选对 Hermes 安装路径" },
+        summary: {
+          en: "Pick one first installation path and avoid mixing native Windows, WSL2, and remote server assumptions.",
+          zh: "先选一条安装路径跑通，避免把原生 Windows、WSL2 和远程服务器的假设混在一起。",
+        },
+        meta: { en: "Beginner · 10 min", zh: "入门 · 10 分钟" },
+        tags: { en: ["Windows", "WSL2", "Setup"], zh: ["Windows", "WSL2", "环境搭建"] },
+        cta: { label: { en: "Open guide", zh: "打开指南" }, href: "/learn/windows-wsl-native-setup", variant: "secondary" },
+      },
+      {
         id: "verify-model-provider",
         slug: "verify-model-provider",
         title: { en: "Verify One Model Provider Early", zh: "尽早验证一个模型服务" },
@@ -188,6 +200,18 @@ export const learnTabs: LearnTab[] = [
         cta: { label: { en: "Read tutorial", zh: "阅读教程" }, href: "/learn/choose-safer-starter-skills", variant: "secondary" },
       },
       {
+        id: "first-custom-skill",
+        slug: "first-custom-skill",
+        title: { en: "Write Your First Hermes Skill", zh: "写你的第一个 Hermes Skill" },
+        summary: {
+          en: "Turn one repeated workflow into a small SKILL.md instead of building a broad automation too early.",
+          zh: "把一个重复工作流沉淀成小而清楚的 SKILL.md，不要一开始就做大而全的自动化。",
+        },
+        meta: { en: "Intermediate · 9 min", zh: "进阶 · 9 分钟" },
+        tags: { en: ["Skills", "SKILL.md", "Reuse"], zh: ["技能", "SKILL.md", "复用"] },
+        cta: { label: { en: "Read tutorial", zh: "阅读教程" }, href: "/learn/first-custom-skill", variant: "secondary" },
+      },
+      {
         id: "design-first-workflow",
         slug: "design-first-workflow",
         title: { en: "Design a First Workflow That Is Small Enough", zh: "设计一个范围足够小的首个工作流" },
@@ -198,6 +222,18 @@ export const learnTabs: LearnTab[] = [
         meta: { en: "Intermediate · 12 min", zh: "进阶 · 12 分钟" },
         tags: { en: ["Workflow", "Narrow scope", "Feedback loop"], zh: ["工作流", "缩小范围", "反馈回路"] },
         cta: { label: { en: "Read tutorial", zh: "阅读教程" }, href: "/learn/design-first-workflow", variant: "secondary" },
+      },
+      {
+        id: "cron-automation-prompt-library",
+        slug: "cron-automation-prompt-library",
+        title: { en: "Cron Automation Prompts That Stay Under Control", zh: "可控的 Hermes Cron 自动化提示词" },
+        summary: {
+          en: "Turn popular always-on Hermes ideas into narrow scheduled jobs with clear delivery, silence rules, and recovery paths.",
+          zh: "把热门的自动运行想法改写成范围清楚、能静默、能暂停的定时任务。",
+        },
+        meta: { en: "Intermediate · 11 min", zh: "进阶 · 11 分钟" },
+        tags: { en: ["Cron", "Automation", "Prompts"], zh: ["Cron", "自动化", "提示词"] },
+        cta: { label: { en: "Read tutorial", zh: "阅读教程" }, href: "/learn/cron-automation-prompt-library", variant: "secondary" },
       },
       {
         id: "observability-before-scale",
@@ -328,6 +364,21 @@ export const learnTabs: LearnTab[] = [
         cta: { label: { en: "Read guide", zh: "阅读指南" }, href: "/learn/sub-agent-parallel-tasks", variant: "secondary" },
       },
       {
+        id: "multi-profile-gateway-operations",
+        slug: "multi-profile-gateway-operations",
+        title: { en: "Multi-Profile Gateways Without State Bleed", zh: "多 Profile Gateway：避免记忆和状态串线" },
+        summary: {
+          en: "Run multiple always-on Hermes agents only when memory, skills, channels, and service ownership are truly separate.",
+          zh: "只有当记忆、skills、渠道和服务归属真的需要隔离时，才值得同时运行多个 Hermes profile。",
+        },
+        meta: { en: "Advanced · 10 min", zh: "高级 · 10 分钟" },
+        tags: {
+          en: ["Profiles", "Gateway", "Isolation"],
+          zh: ["Profile", "Gateway", "隔离"],
+        },
+        cta: { label: { en: "Read guide", zh: "阅读指南" }, href: "/learn/multi-profile-gateway-operations", variant: "secondary" },
+      },
+      {
         id: "hermes-mcp-guide",
         slug: "hermes-mcp-guide",
         title: { en: "Hermes MCP Guide", zh: "Hermes MCP 接入指南" },
@@ -341,6 +392,21 @@ export const learnTabs: LearnTab[] = [
           zh: ["MCP", "集成", "能力扩展"],
         },
         cta: { label: { en: "Read guide", zh: "阅读指南" }, href: "/learn/hermes-mcp-guide", variant: "secondary" },
+      },
+      {
+        id: "open-webui-api-server",
+        slug: "open-webui-api-server",
+        title: { en: "Use Hermes Agent from Open WebUI", zh: "把 Hermes Agent 接入 Open WebUI" },
+        summary: {
+          en: "Expose Hermes through its OpenAI-compatible API server and connect it to Open WebUI without confusing health checks with model discovery.",
+          zh: "通过 OpenAI 兼容 API Server 连接 Open WebUI，并避免把健康检查和模型发现混为一谈。",
+        },
+        meta: { en: "Advanced · 9 min", zh: "高级 · 9 分钟" },
+        tags: {
+          en: ["Open WebUI", "API server", "Integration"],
+          zh: ["Open WebUI", "API Server", "集成"],
+        },
+        cta: { label: { en: "Read guide", zh: "阅读指南" }, href: "/learn/open-webui-api-server", variant: "secondary" },
       },
     ],
   },
@@ -363,6 +429,18 @@ export const learnTabs: LearnTab[] = [
         meta: { en: "Intermediate · 8 min", zh: "进阶 · 8 分钟" },
         tags: { en: ["Logs", "Diagnosis", "Method"], zh: ["日志", "诊断", "方法"] },
         cta: { label: { en: "Open recovery guide", zh: "打开恢复指南" }, href: "/learn/read-logs-without-guessing", variant: "secondary" },
+      },
+      {
+        id: "gateway-service-and-logs",
+        slug: "gateway-service-and-logs",
+        title: { en: "Run the Gateway Like an Operator", zh: "像运维一样运行 Hermes Gateway" },
+        summary: {
+          en: "Move from foreground gateway logs to a service only after you know how to inspect failures.",
+          zh: "先用前台日志跑通，再安装成服务；不要在看不见日志时盲改配置。",
+        },
+        meta: { en: "Intermediate · 8 min", zh: "进阶 · 8 分钟" },
+        tags: { en: ["Gateway", "Logs", "Service"], zh: ["Gateway", "日志", "服务"] },
+        cta: { label: { en: "Open recovery guide", zh: "打开恢复指南" }, href: "/learn/gateway-service-and-logs", variant: "secondary" },
       },
       {
         id: "permission-and-sandbox-failures",

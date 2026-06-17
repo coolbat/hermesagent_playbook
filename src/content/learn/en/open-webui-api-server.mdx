@@ -1,0 +1,91 @@
+---
+title: "Use Hermes Agent from Open WebUI"
+summary: "Expose Hermes through its OpenAI-compatible API server and connect it to Open WebUI without confusing health checks with model discovery."
+readingTime: 9 min
+---
+
+Open WebUI is useful when you want a familiar chat surface while Hermes keeps doing agent work behind the scenes. The important detail is that Open WebUI connects to Hermes through the API server exposed by `hermes gateway`.
+
+## What this setup changes
+
+You are not replacing Hermes with a normal chatbot. Open WebUI becomes the frontend. Hermes remains the agent runtime with tools, memory, skills, terminal access, and workflow behavior.
+
+That distinction matters when you debug it. A broken Open WebUI connection is usually an API URL, API key, container networking, or gateway problem, not a prompt problem.
+
+## Enable the API server
+
+Set these values in the Hermes environment file:
+
+```bash
+API_SERVER_ENABLED=true
+API_SERVER_KEY=replace-with-a-strong-random-key
+```
+
+Then start the gateway:
+
+```bash
+hermes gateway
+```
+
+Keep it running while Open WebUI talks to Hermes.
+
+## Connect Open WebUI
+
+In Open WebUI, add an OpenAI-compatible connection:
+
+```text
+URL: http://localhost:8642/v1
+API Key: the API_SERVER_KEY value
+```
+
+The `/v1` suffix is not cosmetic. If you omit it, a basic connection test may pass while model discovery still fails.
+
+## Docker detail
+
+If Open WebUI runs in Docker, `localhost` is the container, not your host machine.
+
+Use this on Docker Desktop:
+
+```text
+http://host.docker.internal:8642/v1
+```
+
+On Linux Docker, you may need host networking, an explicit host mapping, or the Docker bridge IP.
+
+## Verify in order
+
+Check the Hermes side first:
+
+```bash
+curl http://localhost:8642/health
+curl http://localhost:8642/v1/models
+```
+
+Then check Open WebUI.
+
+If health passes but no model appears, check:
+
+- the URL includes `/v1`
+- Open WebUI is using the same API key
+- Docker can reach the host port
+- `hermes gateway` is still running
+
+## What to try first
+
+Start with a simple prompt that does not require tool use:
+
+```text
+Reply with one sentence confirming you are Hermes Agent through Open WebUI.
+```
+
+Then try a low-risk tool request:
+
+```text
+List the current working directory and summarize what you see.
+```
+
+Only after both work should you try long-running workflows.
+
+## Source notes
+
+This guide is based on the Open WebUI Hermes Agent connection docs and the official Hermes gateway model. Exact environment variable names and default ports should be rechecked before publishing setup screenshots.

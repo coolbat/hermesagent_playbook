@@ -1,0 +1,94 @@
+---
+title: "Multi-Profile Gateways Without State Bleed"
+summary: "Run multiple always-on Hermes agents only when their memory, skills, channels, and service ownership are truly separate."
+readingTime: 10 min
+---
+
+Multiple Hermes profiles let you run separate agents side by side: a research bot, a writing bot, a production operations bot, and a sandbox bot can all have different state.
+
+That power is useful only when you keep boundaries explicit.
+
+## When multi-profile is worth it
+
+Use multiple profiles when you need separate:
+
+- messaging accounts
+- memory and user modeling
+- skills
+- provider choices
+- cron schedules
+- safety posture
+
+Do not create profiles just to organize prompts. If the agent shares the same tools, memory, channels, and risk level, a normal skill or instruction file may be enough.
+
+## Name by responsibility
+
+Prefer names that describe ownership:
+
+```text
+research
+writing
+ops-prod
+ops-sandbox
+family-assistant
+```
+
+Avoid vague names like `agent1` and `test2`. Six weeks later, service names and logs should still make sense.
+
+## Keep credentials scoped
+
+Each profile should have its own `HERMES_HOME`, config, env, memory, and skill set. The whole point is isolation.
+
+For each profile, record:
+
+- messaging account or bot identity
+- target channels
+- model/provider
+- allowed skills
+- cron jobs
+- owner
+
+## Gateway operations
+
+The official multi-profile gateway pattern gives each profile its own service. That is better than a single ambiguous process because status and logs can be inspected per profile.
+
+Before installing services, test each profile in the foreground:
+
+```bash
+HERMES_HOME=/path/to/profile hermes doctor
+HERMES_HOME=/path/to/profile hermes gateway
+```
+
+Then send a platform message to the matching bot and confirm the right profile answers.
+
+## State bleed checks
+
+Run these checks before calling the setup complete:
+
+- Bot A does not answer with Bot B's persona
+- Bot A cannot see Bot B's private memory
+- Bot A cron jobs do not deliver to Bot B channels
+- profile-specific logs show the expected provider and platform
+- service names identify the profile clearly
+
+If one of these fails, stop and fix routing before adding more automation.
+
+## Use profiles with cron deliberately
+
+Hermes cron can target a profile, which is useful for a night-ops bot or research queue. But profile switching is a global runtime boundary, so keep profile-pinned jobs simple and inspectable.
+
+Good:
+
+```text
+Every day at 03:00, using the ops-prod profile, summarize security log anomalies and deliver to Feishu.
+```
+
+Too broad:
+
+```text
+Every night, use all profiles to improve everything and notify everyone.
+```
+
+## Source notes
+
+This guide is a secondary operating checklist based on the official multi-profile gateway and cron profile behavior. It complements, but does not replace, the command-level official guide.

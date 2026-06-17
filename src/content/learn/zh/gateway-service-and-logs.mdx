@@ -1,0 +1,79 @@
+---
+title: "像运维一样运行 Hermes Gateway"
+summary: "先用前台日志跑通，再安装成服务；不要在看不见日志时盲改配置。"
+readingTime: 8 分钟
+---
+
+gateway 是 Hermes 和消息平台之间的桥。把它当成一个小服务来维护，而不是一个神秘的后台命令。
+
+## 先以前台运行
+
+接入新平台时，先跑：
+
+```bash
+hermes gateway
+```
+
+保持终端可见。然后从目标平台发一条消息，观察日志。这样最快能回答一个关键问题：平台事件到底有没有到 Hermes。
+
+## 改配置前先读日志
+
+不要一上来同时改五个配置。先看日志：
+
+```bash
+hermes logs gateway -n 100
+hermes logs errors -n 100
+hermes logs gateway -f
+```
+
+找第一条真实失败，而不是最后一行重复报错。凭证错误、权限缺失、webhook URL 不对、模型 provider 出错，症状都不一样。
+
+## 跑通后再安装成服务
+
+前台模式确认可用后，再安装服务。
+
+Linux 用户服务：
+
+```bash
+hermes gateway install
+hermes gateway start
+hermes gateway status
+journalctl --user -u hermes-gateway -f
+```
+
+macOS launchd：
+
+```bash
+hermes gateway install
+hermes gateway start
+hermes gateway status
+tail -f ~/.hermes/logs/gateway.log
+```
+
+只有当你明确需要 VPS 开机自启、且不依赖登录会话时，才考虑系统级服务。
+
+## 保持一个事实来源
+
+除非在测试，否则不要同时跑前台 gateway 和服务版 gateway。两个进程会让排错变得模糊：一个进程接收事件，另一个进程才是你正在改配置的那份。
+
+排错时按这个顺序：
+
+1. 停掉服务
+2. 前台运行 `hermes gateway`
+3. 复现一条消息
+4. 读取日志
+5. 理解问题后再启动服务
+
+## 常见症状地图
+
+| 症状 | 先查什么 |
+|---|---|
+| 机器人完全沉默 | gateway 是否运行并收到事件 |
+| 私聊可用，群聊不可用 | 平台权限和 @ 触发规则 |
+| 回复很慢 | provider 延迟或任务调用了很多工具 |
+| cron 不运行 | gateway 调度器和 `hermes cron status` |
+| 日志说缺少 env | `HERMES_HOME` 或 profile 是否搞错 |
+
+## 资料说明
+
+这篇基于 Hermes messaging gateway 文档和 CLI 日志命令做二次整理，中文飞书教程只作为常见症状线索，不直接搬运原文。

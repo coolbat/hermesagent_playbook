@@ -1,0 +1,79 @@
+---
+title: "Run the Gateway Like an Operator"
+summary: "Move from foreground gateway logs to a service only after you know how to inspect failures."
+readingTime: 8 min
+---
+
+The gateway is the bridge between Hermes and messaging platforms. Treat it like a small service, not a magic background command.
+
+## Foreground first
+
+When adding a platform, start with:
+
+```bash
+hermes gateway
+```
+
+Keep the terminal visible. Send one message from the target platform and watch what happens. This gives you the fastest answer to the most important question: did the platform event reach Hermes?
+
+## Read logs before editing config
+
+Use logs before changing five settings at once:
+
+```bash
+hermes logs gateway -n 100
+hermes logs errors -n 100
+hermes logs gateway -f
+```
+
+Look for the first real failure, not the last repeated line. Credential failures, missing permissions, bad webhook URLs, and provider errors produce different symptoms.
+
+## Install as a service after it works
+
+Once foreground mode works, install the service for your platform.
+
+On Linux user services:
+
+```bash
+hermes gateway install
+hermes gateway start
+hermes gateway status
+journalctl --user -u hermes-gateway -f
+```
+
+On macOS launchd:
+
+```bash
+hermes gateway install
+hermes gateway start
+hermes gateway status
+tail -f ~/.hermes/logs/gateway.log
+```
+
+Use system-level services on a VPS only when you deliberately want startup behavior independent of a login session.
+
+## Keep one source of truth
+
+Avoid running both foreground gateway and a service copy unless you are testing. Two gateway processes can make debugging ambiguous: one may receive events while the other has the config you are editing.
+
+When debugging:
+
+1. stop the service
+2. run `hermes gateway` in the foreground
+3. reproduce one message
+4. read the logs
+5. restart the service only after the issue is understood
+
+## Gateway failure map
+
+| Symptom | First check |
+|---|---|
+| Bot is silent | Is gateway running and receiving events? |
+| Direct messages work, group messages do not | Platform permissions and mention rules |
+| API responds slowly | Provider latency or tool-heavy task |
+| Cron jobs do not run | Gateway scheduler and `hermes cron status` |
+| Logs mention missing env | Wrong `HERMES_HOME` or wrong profile |
+
+## Source notes
+
+This guide is based on Hermes messaging gateway docs and CLI logging commands, with community Feishu setup tutorials used only as practical symptom inspiration.

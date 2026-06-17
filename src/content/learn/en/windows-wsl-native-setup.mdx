@@ -1,0 +1,90 @@
+---
+title: "Windows, WSL2, or VPS: Choose the Right Hermes Setup"
+summary: "Pick a first installation path without mixing native Windows, WSL2, and remote server assumptions."
+readingTime: 10 min
+---
+
+Hermes Agent can run in several places, but the first setup should be boring. Choose one path, prove it works, and only then add channels, cron, or extra tools.
+
+## The simple decision
+
+Use native Windows when you want the lowest-friction local install and you do not need the browser dashboard terminal panel.
+
+Use WSL2 when your real workflow is Linux-like: shell scripts, package managers, server commands, and repo work that already expects a POSIX environment.
+
+Use a VPS when the agent must stay online after your laptop sleeps, receive gateway events reliably, or run scheduled jobs without depending on a personal computer.
+
+## What not to mix on day one
+
+Do not install native Windows, WSL2, and a VPS copy at the same time unless you are deliberately testing profiles. You will end up asking the wrong installation why a key, model, skill, or gateway is missing.
+
+Start with one environment and write down:
+
+- where Hermes is installed
+- where `HERMES_HOME` lives
+- which shell starts `hermes`
+- which provider was verified
+- which gateway process is supposed to be running
+
+## Native Windows path
+
+The official Windows installer is now a first-class path for CLI, gateway, cron, browser tools, and MCP. It installs its own dependencies in the user-local Hermes directory and keeps them separate from your system tools.
+
+After install, open a new PowerShell window and run:
+
+```powershell
+hermes --version
+hermes doctor
+hermes model
+hermes
+```
+
+If the command is missing, do not reinstall immediately. First open a new terminal, then check whether PATH picked up the Hermes launcher.
+
+## WSL2 path
+
+WSL2 is still the safer default if you expect Linux instructions to work unchanged. Install from inside the WSL shell and keep provider keys, skills, and logs there.
+
+```bash
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+source ~/.bashrc
+hermes doctor
+hermes model
+```
+
+Treat WSL2 as a separate machine. Windows-side tools do not automatically see WSL-side localhost, files, or environment variables in the way beginners expect.
+
+## VPS path
+
+A VPS is not harder because of Hermes. It is harder because it adds server operations: SSH access, system services, firewall rules, log review, and secret handling.
+
+Use it when you need always-on behavior:
+
+- Feishu, Telegram, Discord, or Slack gateway availability
+- unattended cron jobs
+- long-running research or monitoring tasks
+- team usage where your laptop cannot be the runtime
+
+Before you install channels, prove the base loop:
+
+```bash
+hermes doctor
+hermes model
+hermes
+```
+
+Then start the gateway in the foreground and read the logs before installing it as a service.
+
+## Verification checklist
+
+Your first setup is done only when these pass:
+
+- `hermes doctor` reports the expected environment
+- `hermes model` can save one provider
+- a normal `hermes` chat gets a real response
+- `hermes logs` shows recent activity
+- you know which machine is responsible for gateway and cron
+
+## Source notes
+
+This guide is a secondary synthesis based on the official Hermes installation and quickstart docs, plus common setup patterns surfaced in Chinese Hermes tutorials. Recheck the official docs before relying on exact Windows feature parity.

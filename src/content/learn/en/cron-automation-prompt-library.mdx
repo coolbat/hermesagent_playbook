@@ -1,0 +1,119 @@
+---
+title: "Cron Automation Prompts That Stay Under Control"
+summary: "Turn popular always-on Hermes ideas into narrow scheduled jobs with clear delivery, silence rules, and recovery paths."
+readingTime: 11 min
+---
+
+"Let Hermes work while I sleep" is a useful idea, but it becomes dangerous when the prompt is too broad. A good cron task has a small scope, a clear schedule, a delivery target, and a rule for when to stay silent.
+
+## Start with task shape
+
+Before writing the prompt, choose the shape:
+
+| Shape | Use it for | Risk |
+|---|---|---|
+| Briefing | News, RSS, competitor updates, team summaries | Medium |
+| Watchdog | Disk, memory, service health, CI status | Low to medium |
+| Review | Open PRs, open issues, stale tasks | Medium |
+| Research queue | Topic discovery, source collection, reading list | Medium |
+| Script-only | Pure thresholds and heartbeats | Low |
+
+If the job does not need reasoning, use a script-only no-agent task. Save model calls for tasks that actually need synthesis.
+
+## Prompt pattern: daily briefing
+
+```text
+Every weekday at 08:30, collect the latest high-signal AI infrastructure updates from the sources already configured for this workflow.
+
+Return:
+1. Top 5 updates
+2. Why each matters
+3. One action we should consider
+4. Source links
+
+If there are no meaningful updates, respond with [SILENT].
+Deliver to Feishu.
+```
+
+Why it works: it limits the number of items, defines the format, and avoids sending empty noise.
+
+## Prompt pattern: repository review
+
+```text
+Every day at 09:00, in workdir /home/me/projects/acme, review open pull requests and CI status.
+
+Return:
+1. Blockers first
+2. PRs that need human review
+3. Failed or flaky checks
+4. One recommended next action
+
+Do not change files. Do not approve or merge anything.
+Deliver to the origin conversation.
+```
+
+Why it works: `workdir` gives the task project context, and the prompt keeps it read-only.
+
+## Prompt pattern: health watchdog
+
+```text
+Every 5 minutes, check whether nginx is running and whether disk usage is below 85%.
+
+If healthy, respond only with [SILENT].
+If unhealthy, report:
+1. Failing check
+2. Current value
+3. First command a human should run
+
+Deliver to Telegram.
+```
+
+For purely numeric checks, prefer no-agent script mode so stdout becomes the delivered message without involving a model.
+
+## Prompt pattern: research queue
+
+```text
+Every Monday at 10:00, collect 10 candidate tutorial topics about Hermes Agent from official docs, community posts, and search trends.
+
+For each topic include:
+- reader problem
+- source link
+- why the existing playbook does or does not cover it
+- recommended content type: quick start, learn, template, or troubleshoot
+
+Save the full output locally and deliver only the top 5 to Feishu.
+```
+
+Why it works: it separates full research output from a short notification.
+
+## Safety rules to add
+
+Add one or more of these lines to high-impact cron tasks:
+
+```text
+Do not write files unless explicitly asked.
+Do not send messages to customers.
+Do not create new cron jobs.
+Do not install packages.
+Stop and report if credentials are missing.
+```
+
+Hermes already prevents cron jobs from recursively creating more cron jobs, but it is still worth putting intent boundaries in the prompt.
+
+## Maintenance commands
+
+Use lifecycle commands instead of deleting and recreating jobs every time:
+
+```bash
+hermes cron list
+hermes cron pause <job_id>
+hermes cron resume <job_id>
+hermes cron run <job_id>
+hermes cron edit <job_id> --schedule "every 4h"
+```
+
+The best cron system is easy to pause. If you cannot stop it quickly, it is not ready.
+
+## Source notes
+
+This guide turns popular "automatic Hermes prompt" ideas into safer patterns using the official Hermes cron behavior: attached skills, workdir, profile targeting, delivery targets, `[SILENT]`, and no-agent scripts.

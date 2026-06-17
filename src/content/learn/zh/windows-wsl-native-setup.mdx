@@ -1,0 +1,90 @@
+---
+title: "Windows、WSL2 还是 VPS：先选对 Hermes 安装路径"
+summary: "不要把原生 Windows、WSL2 和远程服务器的假设混在一起，先用一条路径跑通再扩展。"
+readingTime: 10 分钟
+---
+
+Hermes Agent 可以跑在很多地方，但第一次安装应该尽量朴素：选一条路径，证明它能工作，再接入频道、cron 和更多工具。
+
+## 最简单的选择
+
+如果你只是想在本机低门槛跑起来，并且不依赖浏览器 dashboard 里的终端面板，可以先选原生 Windows。
+
+如果你的真实工作流更像 Linux：经常跑 shell 脚本、包管理器、服务器命令，或者项目本身默认 POSIX 环境，那就选 WSL2。
+
+如果你需要机器人长期在线、稳定接收 gateway 事件，或者在你电脑休眠后仍然执行定时任务，那就选 VPS。
+
+## 第一天不要混装
+
+不要一上来同时装原生 Windows、WSL2 和 VPS。这样最容易出现一种混乱：你在 A 环境配置了模型，却在 B 环境启动 gateway，然后以为 Hermes 坏了。
+
+先写清楚五件事：
+
+- Hermes 安装在哪里
+- `HERMES_HOME` 在哪里
+- 哪个 shell 负责启动 `hermes`
+- 哪个 provider 已经验证过
+- 哪个 gateway 进程应该保持运行
+
+## 原生 Windows 路径
+
+官方 Windows 安装路径现在已经能覆盖 CLI、gateway、cron、浏览器工具和 MCP 等主要能力。安装器会把依赖放在用户本地 Hermes 目录里，尽量不污染系统环境。
+
+安装后打开新的 PowerShell，先跑：
+
+```powershell
+hermes --version
+hermes doctor
+hermes model
+hermes
+```
+
+如果提示找不到命令，先不要立刻重装。先重新打开终端，再检查 PATH 是否已经加载 Hermes 启动器。
+
+## WSL2 路径
+
+如果你希望大多数 Linux 教程可以原样执行，WSL2 仍然是更稳的起点。在 WSL shell 里安装，把 provider key、skills 和日志都留在 WSL 这一侧。
+
+```bash
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+source ~/.bashrc
+hermes doctor
+hermes model
+```
+
+把 WSL2 当作一台独立机器。Windows 侧工具不会总是按新手想象的方式自动看到 WSL 里的 localhost、文件和环境变量。
+
+## VPS 路径
+
+VPS 难的不是 Hermes 本身，而是服务器运维：SSH、systemd、端口、防火墙、日志、密钥管理，这些都会一起出现。
+
+这些场景才值得第一天就上 VPS：
+
+- 飞书、Telegram、Discord、Slack gateway 需要长期在线
+- 有无人值守的 cron 任务
+- 有长时间调研、监控或告警
+- 团队多人使用，不能依赖你的个人电脑
+
+接入频道之前，先证明基础链路：
+
+```bash
+hermes doctor
+hermes model
+hermes
+```
+
+然后先以前台方式启动 gateway，看清日志，再安装成系统服务。
+
+## 完成检查
+
+只有下面几项都通过，才算第一次安装完成：
+
+- `hermes doctor` 显示的是你预期中的环境
+- `hermes model` 已保存一个可用 provider
+- 普通 `hermes` 对话能得到真实响应
+- `hermes logs` 能看到最近活动
+- 你知道哪台机器负责 gateway 和 cron
+
+## 资料说明
+
+这篇是基于 Hermes 官方安装/快速入门文档和中文社区热门安装教程做的二次整理，不直接搬运原文。涉及 Windows 能力边界时，后续应以官方文档为准。

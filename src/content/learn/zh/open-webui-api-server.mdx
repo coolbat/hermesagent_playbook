@@ -1,0 +1,91 @@
+---
+title: "把 Hermes Agent 接入 Open WebUI"
+summary: "通过 OpenAI 兼容 API Server 让 Open WebUI 连接 Hermes，并避免把健康检查和模型发现混为一谈。"
+readingTime: 9 分钟
+---
+
+当你想要一个更熟悉的聊天界面，同时又保留 Hermes 的工具、记忆和工作流能力时，Open WebUI 是一个实用入口。关键点是：Open WebUI 不是替代 Hermes，而是通过 `hermes gateway` 暴露的 API server 连接 Hermes。
+
+## 这套接入改变了什么
+
+Open WebUI 只是前端。Hermes 仍然是背后的 agent runtime，负责工具调用、记忆、skills、终端访问和任务执行。
+
+所以排错时不要先怀疑提示词。Open WebUI 连不上 Hermes，通常是 API URL、API key、Docker 网络或 gateway 进程问题。
+
+## 启用 API Server
+
+在 Hermes 的环境文件里设置：
+
+```bash
+API_SERVER_ENABLED=true
+API_SERVER_KEY=replace-with-a-strong-random-key
+```
+
+然后启动 gateway：
+
+```bash
+hermes gateway
+```
+
+只要 Open WebUI 需要和 Hermes 通信，这个 gateway 就要保持运行。
+
+## 在 Open WebUI 中添加连接
+
+在 Open WebUI 里添加 OpenAI 兼容连接：
+
+```text
+URL: http://localhost:8642/v1
+API Key: 你的 API_SERVER_KEY
+```
+
+`/v1` 不是装饰。少了它，基础连接测试可能通过，但模型列表加载失败。
+
+## Docker 场景
+
+如果 Open WebUI 跑在 Docker 里，`localhost` 指的是容器自己，不是宿主机。
+
+Docker Desktop 通常使用：
+
+```text
+http://host.docker.internal:8642/v1
+```
+
+Linux Docker 可能需要 host networking、显式 host 映射，或者 Docker bridge IP。
+
+## 按顺序验证
+
+先验证 Hermes 侧：
+
+```bash
+curl http://localhost:8642/health
+curl http://localhost:8642/v1/models
+```
+
+再验证 Open WebUI。
+
+如果 health 正常但模型不出现，优先检查：
+
+- URL 是否带 `/v1`
+- Open WebUI 里填的 API key 是否完全一致
+- Docker 容器能不能访问宿主机端口
+- `hermes gateway` 是否仍在运行
+
+## 先试什么
+
+先发一个不需要工具调用的简单问题：
+
+```text
+用一句话确认你是通过 Open WebUI 接入的 Hermes Agent。
+```
+
+再试一个低风险工具任务：
+
+```text
+列出当前工作目录，并简要说明你看到了什么。
+```
+
+这两步都通过后，再尝试长时间任务或自动化工作流。
+
+## 资料说明
+
+这篇基于 Open WebUI 的 Hermes Agent 接入文档和 Hermes 官方 gateway 机制做二次整理。环境变量名、默认端口和 Docker 网络细节后续应以官方文档为准。
